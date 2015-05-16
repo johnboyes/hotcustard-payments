@@ -5,6 +5,8 @@ CLIENT_ID = ENV['CLIENT_ID']
 PRIVATE_KEY = ENV['PRIVATE_KEY']
 
 get '/' do
+
+puts PRIVATE_KEY
 client = Google::APIClient.new application_name: '[App name]', application_version: '1.0'
 key = OpenSSL::PKey::RSA.new PRIVATE_KEY, 'notasecret'
 client.authorization = Signet::OAuth2::Client.new(
