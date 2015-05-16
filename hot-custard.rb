@@ -17,6 +17,7 @@ get '/' do
   :issuer => CLIENT_ID,
   :signing_key => key)
   auth = client.authorization
+  auth.fetch_access_token!
   session = GoogleDrive.login_with_oauth(auth.access_token)
-  "looks good, tastes good"
+  "number of spreadsheets found: #{session.spreadsheets.size}"
 end
