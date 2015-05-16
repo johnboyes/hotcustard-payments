@@ -3,9 +3,12 @@ require 'google/api_client'
 require 'google_drive'
 require 'pry'
 
+$stdout.sync = true #so we can see stdout when starting with foreman, see https://github.com/ddollar/foreman/wiki/Missing-Output
+
 GOOGLE_SERVICE_ACCOUNT_EMAIL_ADDRESS = ENV['GOOGLE_SERVICE_ACCOUNT_EMAIL_ADDRESS']
 PRIVATE_KEY = ENV['PRIVATE_KEY']
 SPREADSHEET_KEY = ENV['SPREADSHEET_KEY']
+FACEBOOK_APP_ID = ENV['FACEBOOK_APP_ID']
 GOOGLE_API_VERSION = 'v2'
 
 get '/' do
@@ -22,4 +25,8 @@ get '/' do
   session = GoogleDrive.login_with_oauth(auth.access_token)
   worksheet = session.spreadsheet_by_key(SPREADSHEET_KEY).worksheets[0]
   worksheet[2, 1]
+end
+
+get '/facebook' do
+  erb :facebook_login
 end
