@@ -18,6 +18,7 @@ FACEBOOK_APP_ID = ENV['FACEBOOK_APP_ID']
 FACEBOOK_APP_SECRET = ENV['FACEBOOK_APP_SECRET']
 FACEBOOK_CALLBACK_URL = nil
 GOOGLE_API_VERSION = 'v2'
+USER_DATASTORE = Redis.new(url: ENV["REDIS_URL"])
 
 def self.cache
   @@cache ||= Mu::Cache.new :max_size => 1024, :max_time => 72000.0
@@ -86,7 +87,7 @@ def individual_transactions_for_logged_in_user transactions_worksheet
 end
 
 def user_datastore
-  Redis.new(url: ENV["REDIS_URL"])
+  USER_DATASTORE
 end
 
 def logged_in_user
