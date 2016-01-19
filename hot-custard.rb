@@ -86,7 +86,7 @@ def individual_transactions_for_logged_in_user transactions_worksheet
 end
 
 def user_datastore
-  Redis.new
+  Redis.new(url: ENV["REDIS_URL"])
 end
 
 def logged_in_user
