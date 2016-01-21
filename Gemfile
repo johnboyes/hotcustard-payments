@@ -12,3 +12,4 @@ gem "koala", "~> 2.0"
 gem 'omniauth-facebook'
 gem 'redis'
 gem 'hiredis'
+gem 'dotenv'
