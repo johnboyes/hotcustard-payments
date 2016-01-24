@@ -12,12 +12,20 @@ def app
   Rack::Builder.parse_file('config.ru').first
 end
 
+def invalid_facebook_id
+ "123456"
+end
+
 Capybara.app = app
 
 feature "Full journey tests" do
 
-before(:each) do
+before(:all) do
   OmniAuth.config.test_mode = true
+end
+
+before(:each) do
+  OmniAuth.config.mock_auth[:facebook] = nil
 end
 
 scenario "user_with_facebook_id_in_database_should_see_transactions_and_payments_due" do
@@ -26,9 +34,12 @@ scenario "user_with_facebook_id_in_database_should_see_transactions_and_payments
   expect(page).to have_content "#{VALID_USER_NAME} HC payments due"
 end
 
-# scenario "user_without_facebook_id_in_database_should_see_error_message" do
-#   # what error message to display
-# end
+scenario "user_without_facebook_id_in_database_should_see_error_message" do
+  OmniAuth.config.add_mock(:facebook, {:uid => invalid_facebook_id})
+  visit '/'
+  expect(page).to have_content "Sorry, we haven't activated this feature for you yet."
+  expect(page).to have_content "If you are a Hot Custard member then we'll endeavour to activate it as soon as we can for you :-)"
+end
 
 scenario "user who enters invalid facebook username or password should be returned to login screen" do
   OmniAuth.config.mock_auth[:facebook] = :invalid_credentials

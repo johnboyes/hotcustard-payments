@@ -24,13 +24,6 @@ before do
   redirect to('/auth/facebook') unless current_user
 end
 
-get '/payments' do
-  @person = username
-  @transactions = individual_transactions_for_logged_in_user
-  @balance = individual_balances_for_logged_in_user
-  erb :transactions
-end
-
 def individual_balances_for_logged_in_user
   JSON.parse(user_datastore["balance:#{username}"]).select{|key, value| worth_showing?(value) }
 end
@@ -66,8 +59,21 @@ helpers do
   end
 end
 
+get '/payments' do
+  @person = username
+  @transactions = individual_transactions_for_logged_in_user
+  @balance = individual_balances_for_logged_in_user
+  erb :transactions
+end
+
+get '/unassociated' do
+  "Sorry, we haven't activated this feature for you yet. If you are a Hot Custard member then we'll endeavour to activate it as soon as we can for you :-)"
+end
+
 get '/auth/:provider/callback' do
   session[:facebook_id] = env['omniauth.auth']['uid']
+  session[:username] = username
+  redirect to '/unassociated' if blank? session[:username]
   redirect to('/payments')
 end
 
