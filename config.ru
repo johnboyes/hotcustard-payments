@@ -1,4 +1,7 @@
 require 'rubygems'
+require 'bundler'
+
+Bundler.require
 
 use Rack::Session::Cookie, :secret => 'abc123'
 
