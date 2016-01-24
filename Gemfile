@@ -12,4 +12,9 @@ gem "koala", "~> 2.0"
 gem 'omniauth-facebook'
 gem 'redis'
 gem 'hiredis'
-gem 'dotenv'
+
+group :test do
+  gem 'rspec'
+  gem 'capybara'
+  gem 'dotenv'
+end

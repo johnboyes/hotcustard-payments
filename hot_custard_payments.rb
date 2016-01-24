@@ -3,15 +3,14 @@ require "sinatra/cookies"
 require 'koala'
 require 'redis'
 require 'json'
+require 'omniauth'
+require 'omniauth-facebook'
 require 'pry'
 
 class HotCustardApp < Sinatra::Base
 
 $stdout.sync = true #so we can see stdout when starting with foreman, see https://github.com/ddollar/foreman/wiki/Missing-Output
 
-FACEBOOK_APP_ID = ENV['FACEBOOK_APP_ID']
-FACEBOOK_APP_SECRET = ENV['FACEBOOK_APP_SECRET']
-FACEBOOK_CALLBACK_URL = nil
 USER_DATASTORE = Redis.new(url: ENV["REDIS_URL"])
 
 helpers do
@@ -67,9 +66,13 @@ helpers do
   end
 end
 
-get '/auth/facebook/callback' do
+get '/auth/:provider/callback' do
   session[:facebook_id] = env['omniauth.auth']['uid']
   redirect to('/payments')
+end
+
+get '/auth/failure' do 
+  "Authentication failure"
 end
 
 end
