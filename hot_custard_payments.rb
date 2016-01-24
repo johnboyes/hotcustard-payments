@@ -73,6 +73,7 @@ end
 get '/auth/:provider/callback' do
   session[:facebook_id] = env['omniauth.auth']['uid']
   session[:username] = username
+  puts env['omniauth.auth']
   redirect to '/unassociated' if blank? session[:username]
   redirect to('/payments')
 end
