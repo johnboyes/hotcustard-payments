@@ -32,13 +32,13 @@ scenario "user_with_facebook_id_in_database_should_see_transactions_and_payments
   OmniAuth.config.add_mock(:facebook, {info: {name: VALID_USER_FACEBOOK_NAME}})
   visit '/'
   expect(page).to have_content "#{VALID_USER_NAME} HC payments due"
+  expect(page).to have_current_path("/payments")
 end
 
 scenario "user_without_facebook_id_in_database_should_see_error_message" do
   OmniAuth.config.add_mock(:facebook, {:uid => invalid_facebook_id})
   visit '/'
-  expect(page).to have_content "Sorry, we haven't activated this feature for you yet."
-  expect(page).to have_content "If you are a Hot Custard member then we'll endeavour to activate it as soon as we can for you :-)"
+  expect_unactivated_page_content
 end
 
 scenario "user who enters invalid facebook username or password should be returned to login screen" do
@@ -47,12 +47,14 @@ scenario "user who enters invalid facebook username or password should be return
   expect(page).to have_content "Authentication failure"
 end
 
-# scenario "root url should redirect to /payments" do
+def expect_unactivated_page_content
+  expect(page).to have_content "Sorry, we haven't activated this feature for you yet."
+  expect(page).to have_content "If you are a Hot Custard member then we'll endeavour to activate it as soon as we can for you :-)"
+end
 
-# end
-
-# scenario "unassociated page is not hidden behind authentication" do
-
-# end
+scenario "unassociated page is not hidden behind authentication" do
+  visit '/auth/unassociated'
+  expect_unactivated_page_content
+end
 
 end
