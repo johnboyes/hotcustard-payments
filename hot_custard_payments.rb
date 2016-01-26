@@ -15,7 +15,7 @@ USER_DATASTORE = Redis.new(url: ENV["REDIS_URL"])
 
 helpers do
   def current_user
-    !session[:facebook_id].nil?
+    !session[:facebook_name].nil?
   end
 end
 
@@ -47,7 +47,7 @@ def user_datastore
 end
 
 def username
-  user_datastore["facebook_id:#{session[:facebook_id]}"]
+  user_datastore["facebook_name:#{session[:facebook_name]}"]
 end
 
 helpers do
@@ -66,15 +66,15 @@ get '/payments' do
   erb :transactions
 end
 
-get '/unassociated' do
+get '/auth/unassociated' do
   "Sorry, we haven't activated this feature for you yet. If you are a Hot Custard member then we'll endeavour to activate it as soon as we can for you :-)"
 end
 
 get '/auth/:provider/callback' do
-  session[:facebook_id] = env['omniauth.auth']['uid']
+  session[:facebook_name] = env['omniauth.auth']['info']['name']
   session[:username] = username
   puts env['omniauth.auth']
-  redirect to '/unassociated' if blank? session[:username]
+  redirect to '/auth/unassociated' if blank? session[:username]
   redirect to('/payments')
 end
 

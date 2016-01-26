@@ -5,7 +5,7 @@ require_relative '../hot_custard_payments'
 
 Dotenv.load
 
-VALID_USER_FACEBOOK_ID = ENV['VALID_USER_FACEBOOK_ID']
+VALID_USER_FACEBOOK_NAME = ENV['VALID_USER_FACEBOOK_NAME']
 VALID_USER_NAME = ENV['VALID_USER_NAME']
 
 def app
@@ -29,7 +29,7 @@ before(:each) do
 end
 
 scenario "user_with_facebook_id_in_database_should_see_transactions_and_payments_due" do
-  OmniAuth.config.add_mock(:facebook, {:uid => VALID_USER_FACEBOOK_ID})
+  OmniAuth.config.add_mock(:facebook, {info: {name: VALID_USER_FACEBOOK_NAME}})
   visit '/'
   expect(page).to have_content "#{VALID_USER_NAME} HC payments due"
 end
@@ -48,6 +48,10 @@ scenario "user who enters invalid facebook username or password should be return
 end
 
 # scenario "root url should redirect to /payments" do
+
+# end
+
+# scenario "unassociated page is not hidden behind authentication" do
 
 # end
 
