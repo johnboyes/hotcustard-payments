@@ -32,18 +32,12 @@ end
 scenario "user_with_facebook_id_in_database_should_see_transactions_and_payments_due" do
   OmniAuth.config.add_mock(:facebook, {info: {name: VALID_USER_FACEBOOK_NAME}})
   visit '/'
+  expect(VALID_USER_NAME).not_to be_empty
   expect(page).to have_content "#{VALID_USER_NAME} HC payments due"
+  expect(page).to have_content "#{VALID_USER_NAME} HC bank transactions"
   expect_all_amounts_to_be_monetary
+  expect_all_dates_to_be_valid
   expect(page).to have_current_path("/payments")
-end
-
-def expect_all_amounts_to_be_monetary
-  page.all(:css, '.amount').each {|amount| expect_monetary_amount(amount.text)}
-end
-
-def expect_monetary_amount value
-  Monetize.assume_from_symbol = true
-  expect(value).to eq Monetize.parse(value).format(sign_before_symbol: true)
 end
 
 scenario "user_without_facebook_id_in_database_should_see_error_message" do
@@ -70,6 +64,27 @@ end
 def expect_unactivated_page_content
   expect(page).to have_content "Sorry, we haven't activated this feature for you yet."
   expect(page).to have_content "If you are a Hot Custard member then we'll endeavour to activate it as soon as we can for you :-)"
+end
+
+def expect_all_amounts_to_be_monetary
+  all_amounts = page.all(:css, '.amount')
+  expect(all_amounts).not_to be_empty
+  all_amounts.each {|amount| expect_monetary_amount(amount.text)}
+end
+
+def expect_monetary_amount value
+  Monetize.assume_from_symbol = true
+  expect(value).to eq Monetize.parse(value).format(sign_before_symbol: true)
+end
+
+def expect_all_dates_to_be_valid
+  all_dates = page.all(:css, '.date')
+  expect(all_dates).not_to be_empty
+  all_dates.each{|date| expect_date_in_correct_format(date.text)}
+end
+
+def expect_date_in_correct_format date
+  expect(date).to eq Date.strptime(date, '%e %b %y').strftime('%e %b %y').strip
 end
 
 end

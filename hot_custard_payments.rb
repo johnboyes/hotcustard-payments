@@ -63,7 +63,7 @@ get '/payments' do
   @person = username
   @transactions = individual_transactions_for_logged_in_user
   @balance = individual_balances_for_logged_in_user
-  erb :transactions
+  erb :payments
 end
 
 get '/auth/unassociated' do

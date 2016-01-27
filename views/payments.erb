@@ -60,7 +60,7 @@
     <% for transaction in @transactions %>
       <% items_number = number_of_payment_items_for(transaction) %>
       <tr>
-        <td rowspan="<%= items_number %>"><%= transaction["Date"] %></td>
+        <td rowspan="<%= items_number %>" class="date"><%= transaction["Date"] %></td>
         <td rowspan="<%= items_number %>" <% if transaction["Paid Out"] != "" %>class="amount"><% end %><%= transaction["Paid Out"] %></td>
         <td rowspan="<%= items_number %>" <% if transaction["Paid In"] != "" %>class="amount"><% end %><%= transaction["Paid In"] %></td>
         <td><%= transaction["Item 1"] %>:</td><td <% if transaction["Amount 1"] != "" %>class="amount"><% end %><%= transaction["Amount 1"] %></td>
