@@ -31,7 +31,7 @@
   <thead>
    <tr>
    	<th>Total</th>
-   	<th><%= @balance["Total"] %></th>
+   	<th class="amount"><%= @balance["Total"] %></th>
    </tr>
   </thead>
   <tbody>
@@ -39,7 +39,7 @@
   	  <% if item[0] != "Total" %>
   	    <tr>
   	      <td><%= item[0] %></td>
-  	      <td><%= item[1] %></td>
+  	      <td class="amount"><%= item[1] %></td>
   	    </tr>
   	   <% end %>
   	<% end %>
@@ -53,7 +53,7 @@
       <th>Date</th>
       <th>Paid Out</th>
       <th>Paid In</th>
-      <th>Paid Towards</th>
+      <th colspan="2">Paid Towards</th>
     </tr>
   </thead>
   <tbody>
@@ -61,13 +61,13 @@
       <% items_number = number_of_payment_items_for(transaction) %>
       <tr>
         <td rowspan="<%= items_number %>"><%= transaction["Date"] %></td>
-        <td rowspan="<%= items_number %>"><%= transaction["Paid Out"] %></td>
-        <td rowspan="<%= items_number %>"><%= transaction["Paid In"] %></td>
-        <td><%= transaction["Item 1"] %>: <%= transaction["Amount 1"] %></td>
+        <td rowspan="<%= items_number %>" <% if transaction["Paid Out"] != "" %>class="amount"><% end %><%= transaction["Paid Out"] %></td>
+        <td rowspan="<%= items_number %>" <% if transaction["Paid In"] != "" %>class="amount"><% end %><%= transaction["Paid In"] %></td>
+        <td><%= transaction["Item 1"] %>:</td><td <% if transaction["Amount 1"] != "" %>class="amount"><% end %><%= transaction["Amount 1"] %></td>
       </tr>
       <% if items_number > 1 %>
         <% (2..items_number).each do |index| %>
-           <tr><td class="multiple-items"><%= transaction["Item " + index.to_s] %>: <%= transaction["Amount " + index.to_s] %></td></tr>
+           <tr><td class="multiple-items"><%= transaction["Item " + index.to_s] %>:</td><td class="multiple-items amount"><%= transaction["Amount " + index.to_s] %></td></tr>
          <% end %>
       <% end %>
     <% end %>

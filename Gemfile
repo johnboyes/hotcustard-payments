@@ -17,4 +17,5 @@ group :test do
   gem 'rspec'
   gem 'capybara'
   gem 'dotenv'
+  gem 'monetize'
 end
