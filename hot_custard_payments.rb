@@ -17,7 +17,20 @@ helpers do
   def current_user
     !session[:facebook_name].nil?
   end
+
+  def is_financial_admin?
+    financial_admins.include? username
+  end
+
+  def number_of_payment_items_for(transaction)
+    (1..13).each do |index|
+      return (index -1) if transaction["Item #{index}"].strip.empty?
+    end
+    13
+  end
 end
+
+set(:role) { |role| condition { halt 403 if ((role == :financial_admin) && !is_financial_admin?) } }
 
 before do
   pass if request.path_info =~ /^\/auth\//
@@ -50,13 +63,8 @@ def username
   user_datastore["facebook_name:#{session[:facebook_name]}"]
 end
 
-helpers do
-  def number_of_payment_items_for(transaction)
-    (1..13).each do |index|
-      return (index -1) if transaction["Item #{index}"].strip.empty?
-    end
-    13
-  end
+def financial_admins
+  user_datastore.smembers "financial_admins"
 end
 
 get '/payments' do
@@ -64,6 +72,10 @@ get '/payments' do
   @transactions = individual_transactions_for_logged_in_user
   @balance = individual_balances_for_logged_in_user
   erb :payments
+end
+
+get '/payments/creditors', role: :financial_admin do
+  "Creditors"
 end
 
 get '/auth/unassociated' do
@@ -75,7 +87,7 @@ get '/auth/:provider/callback' do
   session[:username] = username
   puts env['omniauth.auth']
   redirect to '/auth/unassociated' if blank? session[:username]
-  redirect to('/payments')
+  redirect to env['omniauth.origin'] || '/payments'
 end
 
 get '/auth/failure' do 
