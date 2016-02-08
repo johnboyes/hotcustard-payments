@@ -5,6 +5,7 @@ require 'redis'
 require 'json'
 require 'omniauth'
 require 'omniauth-facebook'
+require_relative 'hcmoney'
 require 'pry'
 
 class HotCustardApp < Sinatra::Base
@@ -28,6 +29,10 @@ helpers do
     end
     13
   end
+
+  def total_credit credits
+    credits.map {|item, amounts| amounts[:credit_amount]}.reduce(:+)
+  end
 end
 
 set(:role) { |role| condition { halt 403 if ((role == :financial_admin) && !is_financial_admin?) } }
@@ -38,17 +43,7 @@ before do
 end
 
 def individual_balances_for_logged_in_user
-  JSON.parse(user_datastore["balance:#{username}"]).select{|key, value| worth_showing?(value) }
-end
-
-def blank? string
-  string.nil? || string.empty?
-end
-
-def worth_showing? monetary_string
-  return false if blank? monetary_string
-  int_value = monetary_string.delete("£").to_i
-  (int_value >= 1) or (int_value <= -1)
+  JSON.parse(user_datastore["balance:#{username}"]).select{|key, value| HCMoney.new(value).worth_showing? }
 end
 
 def individual_transactions_for_logged_in_user
@@ -67,6 +62,37 @@ def financial_admins
   user_datastore.smembers "financial_admins"
 end
 
+def all_balances
+  user_datastore.scan_each(:match => "balance:")
+end
+
+def creditors
+  user_datastore.smembers "creditors"
+end
+
+def reject_total hash
+  hash.reject{|key, value| key == "Total"}
+end
+
+def creditor_item_amounts creditor_balance, hot_custard_balance
+  {
+    creditor_balance: creditor_balance,
+    hot_custard_balance: hot_custard_balance,
+    credit_amount: HCMoney.amount_that_can_be_credited(creditor_balance: creditor_balance, hot_custard_balance: hot_custard_balance)
+  }
+end
+
+def balances_for person
+  string_balances = JSON.parse user_datastore["balance:#{person}"]
+  string_balances.map { |item, amount| [item, HCMoney.new(amount)] }.to_h
+end
+
+def credits_for creditor
+  creditor_balances =  reject_total(balances_for creditor).select{|item, amount| amount.in_credit?}
+  hot_custard_balances = reject_total(balances_for "Hot Custard")
+  Hash[creditor_balances.keys.map {|item| [item, creditor_item_amounts(creditor_balances[item], (- hot_custard_balances[item]))]}]
+end
+
 get '/payments' do
   @person = username
   @transactions = individual_transactions_for_logged_in_user
@@ -75,10 +101,12 @@ get '/payments' do
 end
 
 get '/payments/creditors', role: :financial_admin do
-  "Creditors"
+  @creditors = Hash[creditors.map {|creditor| [creditor, credits_for(creditor)]}]
+  erb :creditors
 end
 
 get '/auth/unassociated' do
+  status 403
   "Sorry, we haven't activated this feature for you yet. If you are a Hot Custard member then we'll endeavour to activate it as soon as we can for you :-)"
 end
 
@@ -86,11 +114,11 @@ get '/auth/:provider/callback' do
   session[:facebook_name] = env['omniauth.auth']['info']['name']
   session[:username] = username
   puts env['omniauth.auth']
-  redirect to '/auth/unassociated' if blank? session[:username]
+  redirect to '/auth/unassociated' if session[:username].nil? or session[:username].strip.empty?
   redirect to env['omniauth.origin'] || '/payments'
 end
 
-get '/auth/failure' do 
+get '/auth/failure' do
   "Authentication failure"
 end
 

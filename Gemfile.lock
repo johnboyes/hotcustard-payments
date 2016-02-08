@@ -160,6 +160,7 @@ DEPENDENCIES
   hiredis
   koala (~> 2.0)
   monetize
+  money
   omniauth-facebook
   pry
   puma

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Hot Custard Current Creditors</title>
+<meta charset="UTF-8">
+<style>
+  table {
+    border: 1px solid black;
+    border-collapse: collapse;
+    margin: 50px;
+  }
+  th,td {
+    white-space: nowrap;
+    vertical-align: top;
+    border-top: 1px solid black;
+    padding: 10px;
+  }
+  td.multiple-items {
+  	border: none;
+  	padding-top: 5px;
+  	padding-bottom: 5px;
+  }
+</style>
+</head>
+<body>
+  <h1>Hot Custard Current Creditors</h1>
+  <% @creditors.each_pair do |creditor, credits| %>
+    <table>
+      <caption>HC money that can be paid to <%= creditor %></caption>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Hot Custard balance</th>
+          <th><%= creditor %> balance</th>
+          <th>Amount that can be paid to <%= creditor %></th>
+         </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td colspan="3">Total</td>
+          <td><%= total_credit(credits) %></td>
+        </tr>
+       <% credits.each_pair do |item, amounts| %>
+         <tr>
+           <td><%= item %></td>
+           <td class="amount"><%= amounts[:hot_custard_balance] %></td>
+           <td class="amount"><%= amounts[:creditor_balance] %></td>
+           <td class="amount"><%= amounts[:credit_amount] %></td>
+         </tr>
+       <% end %>
+      </tbody>
+     </table>
+  <% end %>
+</body>
+</html>
