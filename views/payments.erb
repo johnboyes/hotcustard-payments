@@ -24,6 +24,8 @@
 </head>
 <body>
 
+<% if is_financial_admin? %><div><a href="/payments/creditors">Creditors</a></div><% end %>
+
 <div><%= session["facebook_username"] %></div>
 
 <table>

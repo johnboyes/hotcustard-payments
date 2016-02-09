@@ -72,7 +72,8 @@ scenario "financial admins can see what anyone who is owed money can be paid bac
  # show a breakdown of what the person is owed, and whether Custard have had enough payments to pay the person back
   login FINANCIAL_ADMIN_FACEBOOK_NAME
   visit '/'
-  visit '/payments/creditors'
+  click_on 'Creditors'
+  expect(page.current_path).to eq '/payments/creditors'
   expect(page.status_code).to be 200
   expect(page).to have_content "HC money that can be paid to #{CREDITOR_NAME}"
   expect_all_amounts_to_be_monetary
@@ -81,6 +82,7 @@ end
 scenario "regular users cannot see what anyone who is owed money can be paid back" do
   login REGULAR_USER_FACEBOOK_NAME
   visit '/'
+  expect(page).not_to have_content "Creditors"
   visit '/payments/creditors'
   expect(page.status_code).to be 403
 end
