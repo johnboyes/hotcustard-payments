@@ -2,6 +2,7 @@ require 'capybara/rspec'
 require 'omniauth'
 require 'dotenv'
 require 'monetize'
+require 'active_support'
 require_relative '../hot_custard_payments'
 
 Dotenv.load
@@ -62,15 +63,25 @@ end
 
 scenario "financial admins can see everyone's balances and transactions" do
   login FINANCIAL_ADMIN_FACEBOOK_NAME
+  visit '/'
+  visit "/payments/#{REGULAR_USER_NAME.parameterize}"
+  expect(page.status_code).to be 200
+  expect(REGULAR_USER_NAME).not_to be_empty
+  expect(page).to have_content "#{REGULAR_USER_NAME} HC payments due"
+  expect(page).to have_content "#{REGULAR_USER_NAME} HC bank transactions"
+  expect_all_amounts_to_be_monetary
+  expect_all_dates_to_be_valid
 end
 
 scenario "regular users can only see their own balances and transactions" do
   login REGULAR_USER_FACEBOOK_NAME
+  visit '/'
+  visit "/payments/#{REGULAR_USER_NAME.parameterize}"
+  expect(page.status_code).to be 403
 end
 
 scenario "financial admins can see what anyone who is owed money can be paid back" do
- # show a breakdown of what the person is owed, and whether Custard have had enough payments to pay the person back
-  login FINANCIAL_ADMIN_FACEBOOK_NAME
+ login FINANCIAL_ADMIN_FACEBOOK_NAME
   visit '/'
   click_on 'Creditors'
   expect(page.current_path).to eq '/payments/creditors'

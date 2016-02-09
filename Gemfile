@@ -14,6 +14,7 @@ gem 'redis'
 gem 'hiredis'
 gem 'monetize'
 gem 'money'
+gem 'activesupport'
 
 group :test do
   gem 'rspec'

@@ -5,6 +5,8 @@ require 'redis'
 require 'json'
 require 'omniauth'
 require 'omniauth-facebook'
+require 'active_support'
+require 'active_support/core_ext/object/blank'
 require_relative 'hcmoney'
 require 'pry'
 
@@ -25,7 +27,7 @@ helpers do
 
   def number_of_payment_items_for(transaction)
     (1..13).each do |index|
-      return (index -1) if transaction["Item #{index}"].strip.empty?
+      return (index -1) if transaction["Item #{index}"].blank?
     end
     13
   end
@@ -42,11 +44,11 @@ before do
   redirect to('/auth/facebook') unless current_user
 end
 
-def individual_balances_for_logged_in_user
+def individual_balances_for username
   JSON.parse(user_datastore["balance:#{username}"]).select{|key, value| HCMoney.new(value).worth_showing? }
 end
 
-def individual_transactions_for_logged_in_user
+def individual_transactions_for username
   user_datastore.lrange("transactions:#{username}", 0, -1).map { |t| JSON.parse(t)}
 end
 
@@ -95,14 +97,21 @@ end
 
 get '/payments' do
   @person = username
-  @transactions = individual_transactions_for_logged_in_user
-  @balance = individual_balances_for_logged_in_user
+  @transactions = individual_transactions_for @person
+  @balance = individual_balances_for @person
   erb :payments
 end
 
 get '/payments/creditors', role: :financial_admin do
   @creditors = Hash[creditors.map {|creditor| [creditor, credits_for(creditor)]}]
   erb :creditors
+end
+
+get '/payments/:name', role: :financial_admin do
+  @person = params['name'].camelize
+  @transactions = individual_transactions_for @person
+  @balance = individual_balances_for @person
+  erb :payments
 end
 
 get '/auth/unassociated' do

@@ -153,6 +153,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  activesupport
   capybara
   dotenv
   google-api-client
