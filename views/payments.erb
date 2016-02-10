@@ -20,9 +20,28 @@
   	padding-top: 5px;
   	padding-bottom: 5px;
   }
+  div.nav_item {
+    margin-bottom: 20px;
+  }
 </style>
 </head>
 <body>
+
+<% if is_financial_admin? %>
+  <div class="nav_item">
+    <form action="/payments/person" method="post">
+    <select name="person">
+      <% for person in @people %>
+        <option value="<%= person %>"><%= person %></option>
+      <% end %>
+    </select>
+    <input value="Submit" type="submit">
+  </form>
+  </div>
+  <div class="nav_item"><a href="/payments/creditors">Creditors</a></div>
+<% end %>
+
+<div><%= session["facebook_username"] %></div>
 
 <table>
   <caption><%= @person %> HC payments due</caption>

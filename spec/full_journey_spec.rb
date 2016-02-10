@@ -75,6 +75,18 @@ scenario "financial admins can see everyone's balances and transactions" do
   expect_all_dates_to_be_valid
 end
 
+scenario "financial admins can navigate to people's payments from a given person's payments page" do
+  login FINANCIAL_ADMIN_FACEBOOK_NAME
+  visit '/'
+  page.select REGULAR_USER_NAME, :from => 'person'
+  click_on 'Submit'
+  page.select FINANCIAL_ADMIN_USER_NAME, :from => 'person'
+  click_on 'Submit'
+  expect(page.current_path).to eq "/payments/#{FINANCIAL_ADMIN_USER_NAME.parameterize}"
+  expect(FINANCIAL_ADMIN_USER_NAME).not_to be_empty
+  expect(page).to have_content "#{FINANCIAL_ADMIN_USER_NAME} HC payments due"
+end
+
 scenario "regular users can only see their own balances and transactions" do
   login REGULAR_USER_FACEBOOK_NAME
   visit '/'

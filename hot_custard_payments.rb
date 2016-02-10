@@ -103,7 +103,7 @@ get '/payments' do
   @transactions = individual_transactions_for @person
   @balance = individual_balances_for @person
   @people = people
-  erb :payments_with_navigation_links
+  erb :payments
 end
 
 get '/payments/creditors', role: :financial_admin do
@@ -115,6 +115,7 @@ get '/payments/:name', role: :financial_admin do
   @person = user_datastore["parameterized_name:#{params['name']}"]
   @transactions = individual_transactions_for @person
   @balance = individual_balances_for @person
+  @people = people
   erb :payments
 end
 
