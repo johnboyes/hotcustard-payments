@@ -5,10 +5,9 @@ require 'redis'
 require 'json'
 require 'omniauth'
 require 'omniauth-facebook'
-require 'active_support'
 require 'active_support/core_ext/object/blank'
+require 'active_support/core_ext/string/inflections'
 require_relative 'hcmoney'
-require 'pry'
 
 class HotCustardApp < Sinatra::Base
 
@@ -72,6 +71,10 @@ def creditors
   user_datastore.smembers "creditors"
 end
 
+def people
+  (user_datastore.smembers "people").sort
+end
+
 def reject_total hash
   hash.reject{|key, value| key == "Total"}
 end
@@ -99,7 +102,8 @@ get '/payments' do
   @person = username
   @transactions = individual_transactions_for @person
   @balance = individual_balances_for @person
-  erb :payments
+  @people = people
+  erb :payments_with_navigation_links
 end
 
 get '/payments/creditors', role: :financial_admin do
@@ -108,10 +112,14 @@ get '/payments/creditors', role: :financial_admin do
 end
 
 get '/payments/:name', role: :financial_admin do
-  @person = params['name'].camelize
+  @person = user_datastore["parameterized_name:#{params['name']}"]
   @transactions = individual_transactions_for @person
   @balance = individual_balances_for @person
   erb :payments
+end
+
+post '/payments/person' do
+  redirect to "/payments/#{params['person'].parameterize}"
 end
 
 get '/auth/unassociated' do

@@ -1,5 +1,4 @@
 *.sublime-project
 *.sublime-workspace
 *.env
-populate_datastore.rb
 *.example

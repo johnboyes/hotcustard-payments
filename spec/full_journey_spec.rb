@@ -64,7 +64,9 @@ end
 scenario "financial admins can see everyone's balances and transactions" do
   login FINANCIAL_ADMIN_FACEBOOK_NAME
   visit '/'
-  visit "/payments/#{REGULAR_USER_NAME.parameterize}"
+  page.select REGULAR_USER_NAME, :from => 'person'
+  click_on 'Submit'
+  expect(page.current_path).to eq "/payments/#{REGULAR_USER_NAME.parameterize}"
   expect(page.status_code).to be 200
   expect(REGULAR_USER_NAME).not_to be_empty
   expect(page).to have_content "#{REGULAR_USER_NAME} HC payments due"
@@ -76,6 +78,7 @@ end
 scenario "regular users can only see their own balances and transactions" do
   login REGULAR_USER_FACEBOOK_NAME
   visit '/'
+  expect(page).not_to have_button "Submit"
   visit "/payments/#{REGULAR_USER_NAME.parameterize}"
   expect(page.status_code).to be 403
 end
