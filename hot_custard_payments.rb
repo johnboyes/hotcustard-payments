@@ -72,7 +72,7 @@ def creditors
 end
 
 def people
-  (user_datastore.smembers "people").sort
+  JSON.parse user_datastore["people"]
 end
 
 def reject_total hash

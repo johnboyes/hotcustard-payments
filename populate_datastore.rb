@@ -28,7 +28,7 @@ end
 
 def store_user_profile
   people = worksheet("People").list.to_hash_array
-  people.each {|person| DATASTORE.sadd 'people', person["Name"]}
+  DATASTORE.set 'people', people.map{|person| person["Name"]}
   people.each {|person| DATASTORE.set "parameterized_name:#{person["Name"].parameterize}", person["Name"]}
   facebook_people = people.reject{|person| person["Facebook name"].empty?}
   facebook_people.each {|person| DATASTORE.set "facebook_name:#{person["Facebook name"]}", person["Name"]}
