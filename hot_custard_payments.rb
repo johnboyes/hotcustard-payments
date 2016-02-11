@@ -25,10 +25,10 @@ helpers do
   end
 
   def number_of_payment_items_for(transaction)
-    (1..13).each do |index|
+    (1..21).each do |index|
       return (index -1) if transaction["Item #{index}"].blank?
     end
-    13
+    21
   end
 
   def total_credit credits
