@@ -32,16 +32,16 @@ describe HCMoney, ".amount_that_can_be_credited" do
     expect(amount_that_can_be_credited).to eq "£0.00"
   end
 
-  it "is zero when Hot Custard balance is negative" do
+  it "is is whichever amount is closer to zero when hot custard balance is negative" do
     @hot_custard_balance = "-1"
     @creditor_balance = "5"
-    expect(amount_that_can_be_credited).to eq "£0.00"
+    expect(amount_that_can_be_credited).to eq "-£1.00"
   end
 
-  it "is zero when creditor balance is negative" do
+  it "is is whichever amount is closer to zero when creditor balance is negative" do
     @hot_custard_balance = "10"
     @creditor_balance = "-1"
-    expect(amount_that_can_be_credited).to eq "£0.00"
+    expect(amount_that_can_be_credited).to eq "-£1.00"
   end
 
   def amount_that_can_be_credited

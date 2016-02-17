@@ -5,6 +5,7 @@ require 'json'
 require 'dotenv'
 require 'active_support/core_ext/string/inflections'
 Dotenv.load
+# Dotenv.load "prod.env"
 require_relative 'hot_custard_payments'
 require_relative 'hcmoney'
 

@@ -4,7 +4,7 @@ require 'money'
 class HCMoney
 
   def self.amount_that_can_be_credited(creditor_balance:, hot_custard_balance:)
-    return HCMoney.new("0") unless (hot_custard_balance.positive? and creditor_balance.positive?)
+    return [hot_custard_balance, -creditor_balance].max if hot_custard_balance.negative?
     case hot_custard_balance <=> creditor_balance
       when -1 then hot_custard_balance
       when 0 then hot_custard_balance
