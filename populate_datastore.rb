@@ -21,8 +21,9 @@ def store_transactions
 end
 
 def store_individual_balances_and_creditors
-  worksheet("All individual balances").list.to_hash_array.each do|i|
-  	DATASTORE.set "balance:#{i["Person"]}", i.reject {|k, v| k == "Person"}.to_json
+  balances_sheet = worksheet("All individual balances").list.to_hash_array
+  balances_sheet.reject{|item| ["Hot Custard", "Person", ""].include? item["Person"]}.each do|i|
+  	DATASTORE.set "balance:#{i["Person"]}", i.to_json
     DATASTORE.sadd('creditors', i["Person"]) if HCMoney.new(i["Total"]).in_credit?
   end
 end
