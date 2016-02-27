@@ -41,7 +41,12 @@
   <div class="nav_item"><a href="/payments/creditors">Creditors</a></div>
 <% end %>
 
-<div><%= session["facebook_username"] %></div>
+<table>
+ <caption>HC bank details</caption>
+ <tr><td>Account name: </td><td>Hot Custard</td></tr>
+ <tr><td>Sort code: </td><td><%= ENV['UK_SORT_CODE'] %></td></tr>
+ <tr><td>Account number: </td><td><%= ENV['UK_ACCOUNT_NUMBER'] %></td></tr>
+</table>
 
 <table>
   <caption><%= @person %> HC payments due</caption>

@@ -16,6 +16,9 @@ NO_TRANSACTIONS_USER_NAME = ENV['NO_TRANSACTIONS_USER_NAME']
 FINANCIAL_ADMIN_FACEBOOK_NAME = ENV['FINANCIAL_ADMIN_FACEBOOK_NAME']
 FINANCIAL_ADMIN_USER_NAME = ENV['FINANCIAL_ADMIN_USER_NAME']
 CREDITOR_NAME = ENV['CREDITOR_NAME']
+UK_SORT_CODE = ENV['UK_SORT_CODE']
+UK_ACCOUNT_NUMBER = ENV['UK_ACCOUNT_NUMBER']
+CREDITOR_NAME = ENV['CREDITOR_NAME']
 
 def app
   Rack::Builder.parse_file('config.ru').first
@@ -49,6 +52,14 @@ scenario "regular user with facebook id in database should see transactions and 
   expect(page).not_to have_content no_transactions_message
   expect_all_dates_to_be_valid
   expect(page).to have_current_path("/payments")
+end
+
+scenario "regular user should see HC bank account details" do
+  login REGULAR_USER_FACEBOOK_NAME
+  visit '/'
+  expect(page).to have_content "Account name: Hot Custard"
+  expect(page).to have_content "Sort code: #{UK_SORT_CODE}"
+  expect(page).to have_content "Account number: #{UK_ACCOUNT_NUMBER}"
 end
 
 scenario "debt free user should see a total of zero owing and a congratulatory message" do
