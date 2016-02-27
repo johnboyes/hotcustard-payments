@@ -92,6 +92,9 @@
          <% end %>
       <% end %>
     <% end %>
+    <% if @transactions.empty? %>
+      <tr><td colspan="5">No HC bank transactions yet</td></tr>
+    <% end %>
   </tbody>
 </table>
 

@@ -11,6 +11,8 @@ REGULAR_USER_FACEBOOK_NAME = ENV['REGULAR_USER_FACEBOOK_NAME']
 REGULAR_USER_NAME = ENV['REGULAR_USER_NAME']
 DEBT_FREE_USER_FACEBOOK_NAME = ENV['DEBT_FREE_USER_FACEBOOK_NAME']
 DEBT_FREE_USER_NAME = ENV['DEBT_FREE_USER_NAME']
+NO_TRANSACTIONS_USER_FACEBOOK_NAME = ENV['NO_TRANSACTIONS_USER_FACEBOOK_NAME']
+NO_TRANSACTIONS_USER_NAME = ENV['NO_TRANSACTIONS_USER_NAME']
 FINANCIAL_ADMIN_FACEBOOK_NAME = ENV['FINANCIAL_ADMIN_FACEBOOK_NAME']
 FINANCIAL_ADMIN_USER_NAME = ENV['FINANCIAL_ADMIN_USER_NAME']
 CREDITOR_NAME = ENV['CREDITOR_NAME']
@@ -44,6 +46,7 @@ scenario "regular user with facebook id in database should see transactions and 
   expect_all_amounts_to_be_monetary
   expect(HCMoney.new(total_balance).negative?).to be
   expect(page).not_to have_content debt_free_message
+  expect(page).not_to have_content no_transactions_message
   expect_all_dates_to_be_valid
   expect(page).to have_current_path("/payments")
 end
@@ -58,6 +61,18 @@ scenario "debt free user should see a total of zero owing and a congratulatory m
   expect(page).to have_content debt_free_message
   expect_all_amounts_to_be_monetary
   expect_all_dates_to_be_valid
+  expect(page).to have_current_path("/payments")
+end
+
+scenario "user with no transactions yet should see a message saying so" do
+  login NO_TRANSACTIONS_USER_FACEBOOK_NAME
+  visit '/'
+  expect(DEBT_FREE_USER_NAME).not_to be_empty
+  expect(page).to have_content "#{NO_TRANSACTIONS_USER_NAME} HC payments due"
+  expect(page).to have_content "#{NO_TRANSACTIONS_USER_NAME} HC bank transactions"
+  expect(page).to have_content no_transactions_message
+  expect(all_dates).to be_empty
+  expect_all_amounts_to_be_monetary
   expect(page).to have_current_path("/payments")
 end
 
@@ -130,6 +145,10 @@ scenario "regular users cannot see what anyone who is owed money can be paid bac
   expect(page.status_code).to be 403
 end
 
+def no_transactions_message
+  "No HC bank transactions yet"
+end
+
 def debt_free_message
   "There is nothing to pay, well done!"
 end
@@ -160,9 +179,12 @@ def expect_monetary_amount value
 end
 
 def expect_all_dates_to_be_valid
-  all_dates = page.all(:css, '.date')
   expect(all_dates).not_to be_empty
   all_dates.each{|date| expect_date_in_correct_format(date.text)}
+end
+
+def all_dates
+  page.all(:css, '.date')
 end
 
 def expect_date_in_correct_format date
