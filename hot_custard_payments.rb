@@ -44,7 +44,7 @@ before do
 end
 
 def individual_balances_for username
-  JSON.parse(user_datastore["balance:#{username}"]).select{|key, value| HCMoney.new(value).worth_showing? }
+  JSON.parse(user_datastore["balance:#{username}"]).select{|key, value| HCMoney.new(value).worth_showing? or key == "Total" }
 end
 
 def individual_transactions_for username
@@ -125,7 +125,7 @@ end
 
 get '/auth/unassociated' do
   status 403
-  "Sorry, we haven't activated this feature for you yet. If you are a Hot Custard member then we'll endeavour to activate it as soon as we can for you :-)"
+  "Sorry, we haven't activated this feature for you yet. If you are a Hot Custard member then we'll activate it as soon as we can for you :-)"
 end
 
 get '/auth/:provider/callback' do

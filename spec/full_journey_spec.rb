@@ -9,6 +9,8 @@ Dotenv.load
 
 REGULAR_USER_FACEBOOK_NAME = ENV['REGULAR_USER_FACEBOOK_NAME']
 REGULAR_USER_NAME = ENV['REGULAR_USER_NAME']
+DEBT_FREE_USER_FACEBOOK_NAME = ENV['DEBT_FREE_USER_FACEBOOK_NAME']
+DEBT_FREE_USER_NAME = ENV['DEBT_FREE_USER_NAME']
 FINANCIAL_ADMIN_FACEBOOK_NAME = ENV['FINANCIAL_ADMIN_FACEBOOK_NAME']
 FINANCIAL_ADMIN_USER_NAME = ENV['FINANCIAL_ADMIN_USER_NAME']
 CREDITOR_NAME = ENV['CREDITOR_NAME']
@@ -33,18 +35,33 @@ before(:each) do
   OmniAuth.config.mock_auth[:facebook] = nil
 end
 
-scenario "regular user_with_facebook_id_in_database_should_see_transactions_and_payments_due" do
+scenario "regular user with facebook id in database should see transactions and payments due" do
   login REGULAR_USER_FACEBOOK_NAME
   visit '/'
   expect(REGULAR_USER_NAME).not_to be_empty
   expect(page).to have_content "#{REGULAR_USER_NAME} HC payments due"
   expect(page).to have_content "#{REGULAR_USER_NAME} HC bank transactions"
   expect_all_amounts_to_be_monetary
+  expect(HCMoney.new(total_balance).negative?).to be
+  expect(page).not_to have_content debt_free_message
   expect_all_dates_to_be_valid
   expect(page).to have_current_path("/payments")
 end
 
-scenario "user_without_facebook_name_in_datastore_should_see_error_message" do
+scenario "debt free user should see a total of zero owing and a congratulatory message" do
+  login DEBT_FREE_USER_FACEBOOK_NAME
+  visit '/'
+  expect(DEBT_FREE_USER_NAME).not_to be_empty
+  expect(page).to have_content "#{DEBT_FREE_USER_NAME} HC payments due"
+  expect(page).to have_content "#{DEBT_FREE_USER_NAME} HC bank transactions"
+  expect(total_balance).to eq "£0.00"
+  expect(page).to have_content debt_free_message
+  expect_all_amounts_to_be_monetary
+  expect_all_dates_to_be_valid
+  expect(page).to have_current_path("/payments")
+end
+
+scenario "user without facebook name in datastore should see error message" do
   login "Joe Notindatastore"
   visit '/'
   expect_unactivated_page_content
@@ -113,6 +130,14 @@ scenario "regular users cannot see what anyone who is owed money can be paid bac
   expect(page.status_code).to be 403
 end
 
+def debt_free_message
+  "There is nothing to pay, well done!"
+end
+
+def total_balance
+  page.find("#total-balance").text
+end
+
 def login facebook_name
   OmniAuth.config.add_mock(:facebook, {info: {name: facebook_name}})
 end
@@ -120,7 +145,7 @@ end
 def expect_unactivated_page_content
   expect(page.status_code).to be 403
   expect(page).to have_content "Sorry, we haven't activated this feature for you yet."
-  expect(page).to have_content "If you are a Hot Custard member then we'll endeavour to activate it as soon as we can for you :-)"
+  expect(page).to have_content "If you are a Hot Custard member then we'll activate it as soon as we can for you :-)"
 end
 
 def expect_all_amounts_to_be_monetary
