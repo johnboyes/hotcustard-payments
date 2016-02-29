@@ -3,6 +3,7 @@ require 'omniauth'
 require 'dotenv'
 require 'monetize'
 require 'active_support'
+require 'rspec/expectations'
 require_relative '../hot_custard_payments'
 
 Dotenv.load
@@ -16,9 +17,13 @@ NO_TRANSACTIONS_USER_NAME = ENV['NO_TRANSACTIONS_USER_NAME']
 FINANCIAL_ADMIN_FACEBOOK_NAME = ENV['FINANCIAL_ADMIN_FACEBOOK_NAME']
 FINANCIAL_ADMIN_USER_NAME = ENV['FINANCIAL_ADMIN_USER_NAME']
 CREDITOR_NAME = ENV['CREDITOR_NAME']
+UK_ACCOUNT_NAME = ENV['UK_ACCOUNT_NAME']
 UK_SORT_CODE = ENV['UK_SORT_CODE']
 UK_ACCOUNT_NUMBER = ENV['UK_ACCOUNT_NUMBER']
-CREDITOR_NAME = ENV['CREDITOR_NAME']
+AUS_PAYER_FACEBOOK_NAME = ENV['AUS_PAYER_FACEBOOK_NAME']
+AUS_ACCOUNT_NAME = ENV['AUS_ACCOUNT_NAME']
+AUS_BSB = ENV['AUS_BSB']
+AUS_ACCOUNT_NUMBER = ENV['AUS_ACCOUNT_NUMBER']
 
 def app
   Rack::Builder.parse_file('config.ru').first
@@ -54,12 +59,29 @@ scenario "regular user with facebook id in database should see transactions and 
   expect(page).to have_current_path("/payments")
 end
 
-scenario "regular user should see HC bank account details" do
+scenario "regular user should see UK HC bank account details only" do
   login REGULAR_USER_FACEBOOK_NAME
   visit '/'
-  expect(page).to have_content "Account name: Hot Custard"
-  expect(page).to have_content "Sort code: #{UK_SORT_CODE}"
-  expect(page).to have_content "Account number: #{UK_ACCOUNT_NUMBER}"
+  expect_uk_bank_details
+  expect(page).not_to have_content australia_bank_message
+  expect(page).not_to have_content "$"
+end
+
+scenario "australia payer should see UK and Aus HC bank account details" do
+  login AUS_PAYER_FACEBOOK_NAME
+  visit '/'
+  expect(page).to have_content australia_bank_message
+  expect(page).to have_content "Account name: #{AUS_ACCOUNT_NAME}"
+  expect(page).to have_content "BSB: #{AUS_BSB}"
+  expect(page).to have_content "Account number: #{AUS_ACCOUNT_NUMBER}"
+  expect_uk_bank_details
+end
+
+scenario "australia payer should see total balance in pounds and australian dollars" do
+  login AUS_PAYER_FACEBOOK_NAME
+  visit '/'
+  expect(total_balance).to be_an_amount_in "£"
+  expect(total_balance_in_australian_dollars).to be_an_amount_in "$"
 end
 
 scenario "debt free user should see a total of zero owing and a congratulatory message" do
@@ -156,6 +178,24 @@ scenario "regular users cannot see what anyone who is owed money can be paid bac
   expect(page.status_code).to be 403
 end
 
+def expect_uk_bank_details
+  expect(page).to have_content "UK HC bank details"
+  expect(page).to have_content "Account name: #{UK_ACCOUNT_NAME}"
+  expect(page).to have_content "Sort code: #{UK_SORT_CODE}"
+  expect(page).to have_content "Account number: #{UK_ACCOUNT_NUMBER}"
+end
+
+RSpec::Matchers.define :be_an_amount_in do |symbol|
+  match do |amount|
+    amount.include? symbol
+    expect_monetary_amount amount
+  end
+end
+
+def australia_bank_message
+  "Australia HC bank details"
+end
+
 def no_transactions_message
   "No HC bank transactions yet"
 end
@@ -166,6 +206,10 @@ end
 
 def total_balance
   page.find("#total-balance").text
+end
+
+def total_balance_in_australian_dollars
+  page.find("#total-balance-australian-dollars").text
 end
 
 def login facebook_name

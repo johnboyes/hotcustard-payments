@@ -15,6 +15,7 @@ gem 'hiredis'
 gem 'monetize'
 gem 'money'
 gem 'activesupport'
+gem 'google_currency'
 
 group :test do
   gem 'rspec'

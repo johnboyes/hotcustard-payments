@@ -24,11 +24,19 @@ helpers do
     financial_admins.include? username
   end
 
+  def might_pay_in_aus? person
+    australia_payers.include? person
+  end
+
   def number_of_payment_items_for(transaction)
     (1..21).each do |index|
       return (index -1) if transaction["Item #{index}"].blank?
     end
     21
+  end
+
+  def to_australian_dollars pounds
+    HCMoney.new(pounds).to_australian_dollars ENV['AUS_MARKUP_PERCENTAGE']
   end
 
   def total_credit credits
@@ -61,6 +69,10 @@ end
 
 def financial_admins
   user_datastore.smembers "financial_admins"
+end
+
+def australia_payers
+  user_datastore.smembers "australia_payers"
 end
 
 def all_balances

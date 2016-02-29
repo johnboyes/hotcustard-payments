@@ -1,7 +1,11 @@
 require 'monetize'
 require 'money'
+require 'money/bank/google_currency'
 
 class HCMoney
+
+  Money::Bank::GoogleCurrency.ttl_in_seconds = 3
+  Money.default_bank = Money::Bank::GoogleCurrency.new
 
   def self.amount_that_can_be_credited(creditor_balance:, hot_custard_balance:)
     return [hot_custard_balance, -creditor_balance].max if hot_custard_balance.negative?
@@ -14,9 +18,9 @@ class HCMoney
 
   attr_reader :money
 
-  def initialize monetary_string
+  def initialize monetary_string, currency = "GBP"
     @monetary_string = monetary_string
-    @money = Monetize.parse(monetary_string, "GBP")
+    @money = Monetize.parse(monetary_string, currency)
   end
 
   def to_s
@@ -25,6 +29,15 @@ class HCMoney
 
   def to_i
     @money.to_i
+  end
+
+  def to_australian_dollars markup_percentage = 0
+    amount_from_google = HCMoney.new @money.exchange_to(:AUD).dollars.to_s('F'), "AUD"
+    amount_from_google.markup_to_cover_transfer_fees_and_rate_fluctuation markup_percentage
+  end
+
+  def markup_to_cover_transfer_fees_and_rate_fluctuation markup_percentage
+    self + (self * (markup_percentage.to_f / 100))
   end
 
   def worth_showing?
@@ -37,16 +50,24 @@ class HCMoney
   end
 
   def -(other_hc_money)
-    HCMoney.new((@money - other_hc_money.money).to_s)
+    HCMoney.new (@money - other_hc_money.money).to_s, @money.currency
   end
 
   # returns a new instance with changed polarity
   def -@
-    HCMoney.new((- @money).to_s)
+    HCMoney.new (- @money).to_s, @money.currency
   end
 
   def +(other_hc_money)
-    HCMoney.new((@money + other_hc_money.money).to_s)
+    HCMoney.new (@money + other_hc_money.money).to_s, @money.currency
+  end
+
+  def *(value)
+    HCMoney.new (@money * value).to_s, @money.currency
+  end
+
+  def /(value)
+    HCMoney.new (@money / value).to_s, @money.currency
   end
 
   def <=>(other_hc_money)

@@ -35,10 +35,15 @@ def store_user_profile
   facebook_people = people.reject{|person| person["Facebook name"].empty?}
   facebook_people.each {|person| DATASTORE.set "facebook_name:#{person["Facebook name"]}", person["Name"]}
   DATASTORE.sadd 'financial_admins', financial_admins(people)
+  DATASTORE.sadd 'australia_payers', australia_payers(people)
 end
 
 def financial_admins people
   people.select{|person| person["Financial admin"] == "Yes"}.map{|person| person["Name"]}
+end
+
+def australia_payers people
+  people.select{|person| person["Australia payer"] == "Yes"}.map{|person| person["Name"]}
 end
 
 def worksheet name

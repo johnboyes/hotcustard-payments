@@ -1,5 +1,42 @@
 require 'rspec'
+require 'rspec/expectations'
 require_relative '../hcmoney'
+
+describe HCMoney, ".initialize" do
+
+  it "is in British pounds by default" do
+    expect(HCMoney.new("5")).to be_in_currency "British Pound"
+  end
+
+  it "is in British pounds if pounds are specified" do
+    expect(HCMoney.new("5", "GBP")).to be_in_currency "British Pound"
+  end
+
+  it "is in Australian dollars if dollars are specified" do
+    expect(HCMoney.new("5", "AUD")).to be_in_currency "Australian Dollar"
+  end
+
+end
+
+describe HCMoney, ".to_australian_dollars" do
+
+  it "is in Australian dollars" do
+    expect(HCMoney.new("5").to_australian_dollars).to be_in_currency "Australian Dollar"
+  end
+
+  it "is more in Australian dollars than in British pounds" do
+    pounds = HCMoney.new("5")
+    australian_dollars = pounds.to_australian_dollars
+    expect(australian_dollars.to_i).to be > pounds.to_i
+  end
+
+end
+
+RSpec::Matchers.define :be_in_currency do |currency_name|
+  match { |hcmoney| hcmoney.money.currency.name == currency_name }
+end
+
+
 
 describe HCMoney, ".amount_that_can_be_credited" do
 
@@ -57,13 +94,13 @@ describe HCMoney, "#worth_showing?" do
 
   ["£0.99", "-£0.99"].each do |value|
     it "is not worth showing when #{value}" do
-      expect(HCMoney.new(value ).worth_showing?).to be false
+      expect(HCMoney.new(value).worth_showing?).to be false
     end
   end
 
   ["£1", "-£1"].each do |value|
     it "is worth showing when #{value}" do
-      expect(HCMoney.new(value ).worth_showing?).to be true
+      expect(HCMoney.new(value).worth_showing?).to be true
     end
   end
 
