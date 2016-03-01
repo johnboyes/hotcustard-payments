@@ -52,7 +52,9 @@ before do
 end
 
 def individual_balances_for username
-  JSON.parse(user_datastore["balance:#{username}"]).select{|key, value| HCMoney.new(value).worth_showing? or key == "Total" }
+  balances = JSON.parse(user_datastore["balance:#{username}"]).select{|key, value| HCMoney.new(value).worth_showing?}
+  balances["Total"] = "£0.00" unless balances["Total"]
+  balances
 end
 
 def individual_transactions_for username
