@@ -2,6 +2,9 @@ require 'monetize'
 require 'money'
 require 'money/bank/google_currency'
 
+# see https://github.com/RubyMoney/money/issues/593
+I18n.enforce_available_locales = false
+
 class HCMoney
 
   Money::Bank::GoogleCurrency.ttl_in_seconds = 3
