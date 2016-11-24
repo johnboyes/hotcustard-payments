@@ -1,6 +1,6 @@
 require 'redis'
-require 'google/api_client'
-require 'google_drive'
+require 'googleauth'
+require 'google/apis/sheets_v4'
 require 'json'
 require 'dotenv'
 require 'active_support/core_ext/string/inflections'
@@ -9,19 +9,16 @@ Dotenv.load
 require_relative 'hot_custard_payments'
 require_relative 'hcmoney'
 
-GOOGLE_SERVICE_ACCOUNT_EMAIL_ADDRESS = ENV['GOOGLE_SERVICE_ACCOUNT_EMAIL_ADDRESS']
-PRIVATE_KEY = ENV['PRIVATE_KEY']
 SPREADSHEET_KEY = ENV['SPREADSHEET_KEY']
-GOOGLE_API_VERSION = 'v2'
 DATASTORE = Redis.new(url: ENV["REDIS_URL"])
 
 def store_transactions
-  worksheet_transactions = worksheet("Transactions").list.to_hash_array.reject{|row| row["Date"].empty?}
+  worksheet_transactions = to_hash_array(worksheet("Transactions")).reject{|row| row["Date"].blank?}
   worksheet_transactions.each {|t| DATASTORE.rpush "transactions:#{t["Person"]}", t.to_json }
 end
 
 def store_individual_balances_and_creditors
-  balances_sheet = worksheet("All individual balances").list.to_hash_array
+  balances_sheet = to_hash_array(worksheet("All individual balances"))
   balances_sheet.reject{|item| ["Person", ""].include? item["Person"]}.each do|i|
   	DATASTORE.set "balance:#{i["Person"]}", i.to_json
     DATASTORE.sadd('creditors', i["Person"]) if (HCMoney.new(i["Total"]).in_credit? and (i["Person"] != "Hot Custard"))
@@ -29,13 +26,17 @@ def store_individual_balances_and_creditors
 end
 
 def store_user_profile
-  people = worksheet("People").list.to_hash_array
+  people = to_hash_array(worksheet(people_worksheet_range))
   DATASTORE.set 'people', people.map{|person| person["Name"]}
   people.each {|person| DATASTORE.set "parameterized_name:#{person["Name"].parameterize}", person["Name"]}
-  facebook_people = people.reject{|person| person["Facebook name"].empty?}
+  facebook_people = people.select{|person| person["Facebook name"].present?}
   facebook_people.each {|person| DATASTORE.set "facebook_name:#{person["Facebook name"]}", person["Name"]}
   DATASTORE.sadd 'financial_admins', financial_admins(people)
   DATASTORE.sadd 'australia_payers', australia_payers(people)
+end
+
+def to_hash_array cells_with_header_row
+  cells_with_header_row.drop(1).map { |row| cells_with_header_row[0].zip(row).to_h }
 end
 
 def financial_admins people
@@ -46,26 +47,30 @@ def australia_payers people
   people.select{|person| person["Australia payer"] == "Yes"}.map{|person| person["Name"]}
 end
 
-def worksheet name
-  google_session.spreadsheet_by_key(SPREADSHEET_KEY).worksheet_by_title name
+# need to specify the columns for this sheet, otherwise if just specifying the worksheet name it
+# will collide with the named range of the same name, and the named range will be chosen
+# (which is not what we want).  See http://stackoverflow.com/questions/39638240
+def people_worksheet_range
+  "People!A:G"
 end
+
+def worksheet range
+  google_sheets.get_spreadsheet_values(SPREADSHEET_KEY, range).values
+end
+
 
 def flush_datastore
   DATASTORE.flushdb
 end
 
-def google_session
-  client = Google::APIClient.new application_name: '[App name]', application_version: '1.0'
-  private_key = OpenSSL::PKey::RSA.new PRIVATE_KEY, 'notasecret'
-  client.authorization = Signet::OAuth2::Client.new(
-  :token_credential_uri => 'https://accounts.google.com/o/oauth2/token',
-  :audience => 'https://accounts.google.com/o/oauth2/token',
-  :scope => 'https://www.googleapis.com/auth/drive https://spreadsheets.google.com/feeds/',
-  :issuer => GOOGLE_SERVICE_ACCOUNT_EMAIL_ADDRESS,
-  :signing_key => private_key)
-  auth = client.authorization
-  auth.fetch_access_token!
-  GoogleDrive.login_with_oauth(auth.access_token)
+def google_sheets
+  Google::Apis::SheetsV4::SheetsService.new.tap do |sheets|
+    sheets.authorization = google_authorization
+  end
+end
+
+def google_authorization
+  Google::Auth.get_application_default(['https://www.googleapis.com/auth/spreadsheets.readonly'])
 end
 
 flush_datastore
