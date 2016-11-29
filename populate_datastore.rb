@@ -4,6 +4,7 @@ require 'google/apis/sheets_v4'
 require 'json'
 require 'dotenv'
 require 'active_support/core_ext/string/inflections'
+require "base64"
 Dotenv.load
 # Dotenv.load "prod.env"
 require_relative 'hot_custard_payments'
@@ -11,6 +12,7 @@ require_relative 'hcmoney'
 
 SPREADSHEET_KEY = ENV['SPREADSHEET_KEY']
 DATASTORE = Redis.new(url: ENV["REDIS_URL"])
+GOOGLE_APPLICATION_CREDENTIALS = Base64.decode64(ENV['ENCODED_GOOGLE_APPLICATION_CREDENTIALS'])
 
 def store_transactions
   worksheet_transactions = to_hash_array(worksheet("Transactions")).reject{|row| row["Date"].blank?}
@@ -65,12 +67,15 @@ end
 
 def google_sheets
   Google::Apis::SheetsV4::SheetsService.new.tap do |sheets|
-    sheets.authorization = google_authorization
+    sheets.authorization = decoded_google_authorization_from_env
   end
 end
 
-def google_authorization
-  Google::Auth.get_application_default(['https://www.googleapis.com/auth/spreadsheets.readonly'])
+def decoded_google_authorization_from_env
+  Google::Auth::ServiceAccountCredentials.make_creds(
+    scope: 'https://www.googleapis.com/auth/spreadsheets.readonly',
+    json_key_io: StringIO.new(GOOGLE_APPLICATION_CREDENTIALS)
+  )
 end
 
 flush_datastore
