@@ -38,7 +38,11 @@ def store_user_profile
 end
 
 def to_hash_array cells_with_header_row
-  cells_with_header_row.drop(1).map { |row| cells_with_header_row[0].zip(row).to_h }
+  cells_with_header_row.drop(1).map do |row|
+    # we need to remove leading and trailing whitespace from all cells or there will be subtle bugs
+    stripped = row.map { |cell| cell.strip }
+    cells_with_header_row[0].zip(stripped).to_h
+  end
 end
 
 def financial_admins people
