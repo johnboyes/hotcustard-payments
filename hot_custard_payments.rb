@@ -53,6 +53,7 @@ end
 
 def individual_balances_for username
   balances = JSON.parse(user_datastore["balance:#{username}"]).select{|key, value| HCMoney.new(value).worth_showing?}
+  balances["Total"] = balances.values.map{|amount| HCMoney.new(amount)}.inject(:+)
   balances["Total"] = "£0.00" unless balances["Total"]
   balances
 end
@@ -89,10 +90,6 @@ def people
   JSON.parse user_datastore["people"]
 end
 
-def reject_total hash
-  hash.reject{|key, value| key == "Total"}
-end
-
 def creditor_item_amounts creditor_balance, hot_custard_balance
   {
     creditor_balance: creditor_balance,
@@ -107,8 +104,8 @@ def balances_for person
 end
 
 def credits_for creditor
-  creditor_balances =  reject_total(balances_for creditor).select{|item, amount| amount.in_credit?}
-  hot_custard_balances = reject_total(balances_for "Hot Custard")
+  creditor_balances =  balances_for(creditor).select{|item, amount| amount.in_credit?}
+  hot_custard_balances = balances_for("Hot Custard")
   Hash[creditor_balances.keys.map {|item| [item, creditor_item_amounts(creditor_balances[item], (- hot_custard_balances[item]))]}]
 end
 
