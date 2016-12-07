@@ -19,12 +19,33 @@ def store_transactions
   worksheet_transactions.each {|t| DATASTORE.rpush "transactions:#{t["Person"]}", t.to_json }
 end
 
-def store_individual_balances_and_creditors
-  balances_sheet = to_hash_array(worksheet("All individual balances"))
-  balances_sheet.reject{|item| ["Person", ""].include? item["Person"]}.each do|i|
-  	DATASTORE.set "balance:#{i["Person"]}", i.to_json
-    DATASTORE.sadd('creditors', i["Person"]) if (HCMoney.new(i["Total"]).in_credit? and (i["Person"] != "Hot Custard"))
+def spreadsheet_keys
+  worksheet("Spreadsheets!A2:A").flatten
+end
+
+def balances
+  Hash.new({}).tap do |balances|
+    spreadsheet_keys.each do |key|
+      people = worksheet(key, "PeopleWithCosts")[0]
+      amounts = worksheet(key, "IndividualAmounts")[0]
+      title = title(key)
+      people.each_with_index do |person, index|
+        balances[person] = balances[person].merge({title => amounts[index]})
+      end
+    end
   end
+end
+
+def store_individual_balances_and_creditors
+  balances.each do |person, balance|
+    DATASTORE.set "balance:#{person}", balance.to_json
+    total = balance.values.map{|amount| HCMoney.new(amount)}.inject(:+)
+    DATASTORE.sadd('creditors', person) if (total.in_credit? and (person != "Hot Custard"))
+  end
+end
+
+def title spreadsheet_key
+  sheet = google_sheets.get_spreadsheet(spreadsheet_key).properties.title
 end
 
 def store_user_profile
@@ -60,8 +81,8 @@ def people_worksheet_range
   "People!A:G"
 end
 
-def worksheet range
-  google_sheets.get_spreadsheet_values(SPREADSHEET_KEY, range).values
+def worksheet(spreadsheet_key=SPREADSHEET_KEY, range, value_render_option: nil)
+  google_sheets.get_spreadsheet_values(spreadsheet_key, range, value_render_option: value_render_option).values
 end
 
 
@@ -70,14 +91,14 @@ def flush_datastore
 end
 
 def google_sheets
-  Google::Apis::SheetsV4::SheetsService.new.tap do |sheets|
-    sheets.authorization = decoded_google_authorization_from_env
+  Google::Apis::SheetsV4::SheetsService.new.tap do |service|
+    service.authorization = decoded_google_authorization_from_env
   end
 end
 
 def decoded_google_authorization_from_env
   Google::Auth::ServiceAccountCredentials.make_creds(
-    scope: 'https://www.googleapis.com/auth/spreadsheets.readonly',
+    scope: 'https://www.googleapis.com/auth/spreadsheets',
     json_key_io: StringIO.new(GOOGLE_APPLICATION_CREDENTIALS)
   )
 end
