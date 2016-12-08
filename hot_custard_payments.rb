@@ -7,6 +7,7 @@ require 'omniauth'
 require 'omniauth-facebook'
 require 'active_support/core_ext/object/blank'
 require 'active_support/core_ext/string/inflections'
+require_relative 'sinatra/hcmoney_helper'
 require_relative 'hcmoney'
 
 # Sinatra application class
@@ -17,34 +18,7 @@ class HotCustardApp < Sinatra::Base
 
   USER_DATASTORE = Redis.new(url: ENV['REDIS_URL'])
 
-  helpers do
-    def current_user
-      !session[:facebook_name].nil?
-    end
-
-    def financial_admin?
-      financial_admins.include? username
-    end
-
-    def might_pay_in_aus?(person)
-      australia_payers.include? person
-    end
-
-    def number_of_payment_items_for(transaction)
-      (1..21).each do |index|
-        return (index - 1) if transaction["Item #{index}"].blank?
-      end
-      21
-    end
-
-    def to_australian_dollars(pounds)
-      HCMoney.new(pounds).to_australian_dollars ENV['AUS_MARKUP_PERCENTAGE']
-    end
-
-    def total_credit(credits)
-      credits.values.map { |amounts| amounts[:credit_amount] }.reduce(:+)
-    end
-  end
+  helpers Sinatra::HCMoneyHelper
 
   set(:role) { |role| condition { halt 403 if (role == :financial_admin) && !financial_admin? } }
 
