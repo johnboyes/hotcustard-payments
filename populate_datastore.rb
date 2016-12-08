@@ -51,16 +51,30 @@ def title(spreadsheet_key)
   google_sheets.get_spreadsheet(spreadsheet_key).properties.title
 end
 
-def store_user_profile
-  people = to_hash_array(worksheet(people_worksheet_range))
-  DATASTORE.set 'people', people.map { |person| person['Name'] }
+def facebook_people(people)
+  people.select { |person| person['Facebook name'].present? }
+end
+
+def people_worksheet
+  to_hash_array(worksheet(people_worksheet_range))
+end
+
+def store_facebook_people(people)
+  facebook_people(people).each do |person|
+    DATASTORE.set "facebook_name:#{person['Facebook name']}", person['Name']
+  end
+end
+
+def store_parameterized_people(people)
   people.each do |person|
     DATASTORE.set "parameterized_name:#{person['Name'].parameterize}", person['Name']
   end
-  facebook_people = people.select { |person| person['Facebook name'].present? }
-  facebook_people.each do |person|
-    DATASTORE.set "facebook_name:#{person['Facebook name']}", person['Name']
-  end
+end
+
+def store_user_profile(people)
+  DATASTORE.set 'people', people.map { |person| person['Name'] }
+  store_parameterized_people people
+  store_facebook_people people
   DATASTORE.sadd 'financial_admins', financial_admins(people)
   DATASTORE.sadd 'australia_payers', australia_payers(people)
 end
@@ -113,7 +127,7 @@ end
 
 flush_datastore
 DATASTORE.pipelined do
-  store_user_profile
+  store_user_profile people_worksheet
   store_transactions
   store_individual_balances_and_creditors
 end

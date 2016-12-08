@@ -174,10 +174,12 @@ feature 'Full journey tests' do
   end
 
   def expect_uk_bank_details
-    expect(page).to have_content 'UK HC bank details'
-    expect(page).to have_content "Account name: #{UK_ACCOUNT_NAME}"
-    expect(page).to have_content "Sort code: #{UK_SORT_CODE}"
-    expect(page).to have_content "Account number: #{UK_ACCOUNT_NUMBER}"
+    [
+      'UK HC bank details',
+      "Account name: #{UK_ACCOUNT_NAME}",
+      "Sort code: #{UK_SORT_CODE}",
+      "Account number: #{UK_ACCOUNT_NUMBER}"
+    ].each { |content| expect(page).to have_content content }
   end
 
   RSpec::Matchers.define :be_an_amount_in do |symbol|
