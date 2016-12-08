@@ -27,7 +27,7 @@
 </head>
 <body>
 
-<% if is_financial_admin? %>
+<% if financial_admin? %>
   <div class="nav_item">
     <form action="/payments/person" method="post">
     <select name="person">
