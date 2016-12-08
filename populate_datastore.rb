@@ -29,8 +29,8 @@ end
 def balances
   Hash.new({}).tap do |balances|
     spreadsheet_keys.each do |key|
-      people = worksheet(key, 'PeopleWithCosts')[0]
-      amounts = worksheet(key, 'IndividualAmounts')[0]
+      people = worksheet('PeopleWithCosts', key)[0]
+      amounts = worksheet('IndividualAmounts', key)[0]
       title = title(key)
       people.each_with_index do |person, index|
         balances[person] = balances[person].merge(title => amounts[index])
@@ -68,7 +68,7 @@ end
 def to_hash_array(cells_with_header_row)
   cells_with_header_row.drop(1).map do |row|
     # we need to remove leading and trailing whitespace from all cells or there will be subtle bugs
-    stripped = row.map { |cell| cell.strip }
+    stripped = row.map(&:strip)
     cells_with_header_row[0].zip(stripped).to_h
   end
 end
@@ -88,7 +88,7 @@ def people_worksheet_range
   'People!A:G'
 end
 
-def worksheet(spreadsheet_key = SPREADSHEET_KEY, range, value_render_option: nil)
+def worksheet(range, spreadsheet_key = SPREADSHEET_KEY, value_render_option: nil)
   google_sheets.get_spreadsheet_values(
     spreadsheet_key, range, value_render_option: value_render_option
   ).values

@@ -9,6 +9,7 @@ require 'active_support/core_ext/object/blank'
 require 'active_support/core_ext/string/inflections'
 require_relative 'hcmoney'
 
+# Sinatra application class
 class HotCustardApp < Sinatra::Base
   # so we can see stdout when starting with foreman, see
   # https://github.com/ddollar/foreman/wiki/Missing-Output
@@ -41,14 +42,14 @@ class HotCustardApp < Sinatra::Base
     end
 
     def total_credit(credits)
-      credits.map { |_item, amounts| amounts[:credit_amount] }.reduce(:+)
+      credits.values.map { |amounts| amounts[:credit_amount] }.reduce(:+)
     end
   end
 
   set(:role) { |role| condition { halt 403 if (role == :financial_admin) && !financial_admin? } }
 
   before do
-    pass if request.path_info =~ /^\/auth\//
+    pass if request.path_info =~ %r{^\/auth\/}
     redirect to('/auth/facebook') unless current_user
   end
 
@@ -143,10 +144,8 @@ class HotCustardApp < Sinatra::Base
 
   get '/auth/unassociated' do
     status 403
-    <<~HEREDOC
-      Sorry, we haven't activated this feature for you yet. If you are a Hot Custard member
-      then we'll activate it as soon as we can for you :-)
-    HEREDOC
+    "Sorry, we haven't activated this feature for you yet. If you are a Hot Custard member "\
+    "then we'll activate it as soon as we can for you :-)"
   end
 
   get '/auth/:provider/callback' do

@@ -5,6 +5,7 @@ require 'money/bank/google_currency'
 # see https://github.com/RubyMoney/money/issues/593
 I18n.enforce_available_locales = false
 
+# Hot Custard tailored implementation of money
 class HCMoney
   Money::Bank::GoogleCurrency.ttl_in_seconds = 3
   Money.default_bank = Money::Bank::GoogleCurrency.new
