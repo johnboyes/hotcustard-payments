@@ -44,8 +44,29 @@ def store_individual_balances_and_creditors
   end
 end
 
-def title spreadsheet_key
-  sheet = google_sheets.get_spreadsheet(spreadsheet_key).properties.title
+def spreadsheet(spreadsheet_key)
+  exponential_backoff do
+    google_sheets.get_spreadsheet(spreadsheet_key)
+  end
+end
+
+def title(spreadsheet_key)
+  spreadsheet(spreadsheet_key).properties.title
+end
+
+def exponential_backoff
+  (0..5).each do |n|
+    begin
+      return yield
+    rescue => error
+      puts error.inspect
+      wait_time = (2 ** n)
+      puts "wait time: #{wait_time}"
+      sleep(wait_time)
+      next
+    end
+  end
+  fail "max number of retries for rate limit exceeded"
 end
 
 def store_user_profile
@@ -82,7 +103,11 @@ def people_worksheet_range
 end
 
 def worksheet(spreadsheet_key=SPREADSHEET_KEY, range, value_render_option: nil)
-  google_sheets.get_spreadsheet_values(spreadsheet_key, range, value_render_option: value_render_option).values
+  exponential_backoff do
+    google_sheets.get_spreadsheet_values(
+      spreadsheet_key, range, value_render_option: value_render_option
+    ).values
+  end
 end
 
 
@@ -93,6 +118,7 @@ end
 def google_sheets
   Google::Apis::SheetsV4::SheetsService.new.tap do |service|
     service.authorization = decoded_google_authorization_from_env
+    quota_user = "hot_custard_payments_user_#{rand(100000)}"
   end
 end
 
