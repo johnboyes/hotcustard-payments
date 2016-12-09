@@ -1,23 +1,22 @@
 source 'https://rubygems.org'
-ruby "2.3.1"
+ruby '2.3.1'
 
-gem "sinatra"
-gem "sinatra-contrib"
-gem 'tilt'
-gem "puma"
-gem "google-api-client"
-gem "pry"
-gem "koala", "~> 2.0"
-gem 'omniauth-facebook'
-gem 'redis'
+gem 'activesupport'
+gem 'google-api-client'
+gem 'google_currency'
 gem 'hiredis'
+gem 'koala', '~> 2.0'
 gem 'monetize'
 gem 'money'
-gem 'activesupport'
-gem 'google_currency'
+gem 'omniauth-facebook'
+gem 'puma'
+gem 'redis'
+gem 'sinatra'
+gem 'sinatra-contrib'
+gem 'tilt'
 
 group :test do
-  gem 'rspec'
   gem 'capybara'
   gem 'dotenv'
+  gem 'rspec'
 end
