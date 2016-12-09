@@ -7,15 +7,17 @@ require 'active_support/core_ext/string/inflections'
 require 'base64'
 Dotenv.load
 # Dotenv.load "prod.env"
+require_relative 'google_sheet'
 require_relative 'hot_custard_payments'
 require_relative 'hcmoney'
 
 SPREADSHEET_KEY = ENV['SPREADSHEET_KEY']
 DATASTORE = Redis.new(url: ENV['REDIS_URL'])
-GOOGLE_APPLICATION_CREDENTIALS = Base64.decode64(ENV['ENCODED_GOOGLE_APPLICATION_CREDENTIALS'])
 
 def transactions_worksheet
-  to_hash_array(worksheet('Transactions')).reject { |row| row['Date'].blank? }
+  GoogleSheet.worksheet(SPREADSHEET_KEY, 'Transactions', hash_array: true).reject do |row|
+    row['Date'].blank?
+  end
 end
 
 def store_transactions
@@ -23,15 +25,15 @@ def store_transactions
 end
 
 def spreadsheet_keys
-  worksheet('Spreadsheets!A2:A').flatten
+  GoogleSheet.worksheet(SPREADSHEET_KEY, 'Spreadsheets!A2:A').flatten
 end
 
 def balances
   Hash.new({}).tap do |balances|
     spreadsheet_keys.each do |key|
-      people = worksheet('PeopleWithCosts', key)[0]
-      amounts = worksheet('IndividualAmounts', key)[0]
-      title = title(key)
+      people = GoogleSheet.worksheet(key, 'PeopleWithCosts')[0]
+      amounts = GoogleSheet.worksheet(key, 'IndividualAmounts')[0]
+      title = GoogleSheet.title(key)
       people.each_with_index do |person, index|
         balances[person] = balances[person].merge(title => amounts[index])
       end
@@ -47,35 +49,8 @@ def store_individual_balances_and_creditors
   end
 end
 
-def spreadsheet(spreadsheet_key)
-  exponential_backoff do
-    google_sheets.get_spreadsheet(spreadsheet_key)
-  end
-end
-
-def title(spreadsheet_key)
-  spreadsheet(spreadsheet_key).properties.title
-end
-
-def exponential_wait_time(n)
-  2**n.tap { |wait_time| puts "wait time: #{wait_time}s" }
-end
-
-def exponential_backoff
-  (0..5).each do |n|
-    begin
-      return yield
-    rescue => error
-      puts error.inspect
-      sleep(wait_time(n))
-      next
-    end
-  end
-  raise 'max number of retries for rate limit exceeded'
-end
-
 def people_worksheet
-  to_hash_array(worksheet(people_worksheet_range))
+  GoogleSheet.worksheet(SPREADSHEET_KEY, people_worksheet_range, hash_array: true)
 end
 
 def store_facebook_people(people)
@@ -94,20 +69,12 @@ def store_parameterized_people(people)
   end
 end
 
-def store_user_profile(people)
+def store_user_profiles(people)
   DATASTORE.set 'people', people.map { |person| person['Name'] }
   store_parameterized_people people
   store_facebook_people people
   DATASTORE.sadd 'financial_admins', financial_admins(people)
   DATASTORE.sadd 'australia_payers', australia_payers(people)
-end
-
-def to_hash_array(cells_with_header_row)
-  cells_with_header_row.drop(1).map do |row|
-    # we need to remove leading and trailing whitespace from all cells or there will be subtle bugs
-    stripped = row.map(&:strip)
-    cells_with_header_row[0].zip(stripped).to_h
-  end
 end
 
 def financial_admins(people)
@@ -125,34 +92,13 @@ def people_worksheet_range
   'People!A:G'
 end
 
-def worksheet(range, spreadsheet_key = SPREADSHEET_KEY, value_render_option: nil)
-  exponential_backoff do
-    google_sheets.get_spreadsheet_values(
-      spreadsheet_key, range, value_render_option: value_render_option
-    ).values
-  end
-end
-
 def flush_datastore
   DATASTORE.flushdb
 end
 
-def google_sheets
-  Google::Apis::SheetsV4::SheetsService.new.tap do |service|
-    service.authorization = decoded_google_authorization_from_env
-  end
-end
-
-def decoded_google_authorization_from_env
-  Google::Auth::ServiceAccountCredentials.make_creds(
-    scope: 'https://www.googleapis.com/auth/spreadsheets',
-    json_key_io: StringIO.new(GOOGLE_APPLICATION_CREDENTIALS)
-  )
-end
-
 flush_datastore
 DATASTORE.pipelined do
-  store_user_profile people_worksheet
+  store_user_profiles people_worksheet
   store_transactions
   store_individual_balances_and_creditors
 end
