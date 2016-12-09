@@ -44,12 +44,21 @@ def store_individual_balances_and_creditors
   end
 end
 
-def title spreadsheet_key
+def spreadsheet(spreadsheet_key)
+  exponential_backoff do
+    google_sheets.get_spreadsheet(spreadsheet_key)
+  end
+end
+
+def title(spreadsheet_key)
+  spreadsheet(spreadsheet_key).properties.title
+end
+
+def exponential_backoff
   (0..5).each do |n|
     begin
-      sheet = google_sheets.get_spreadsheet(spreadsheet_key).properties.title
+      return yield
     rescue => error
-      puts "title rate limit exceeded"
       puts error.inspect
       wait_time = (2 ** n)
       puts "wait time: #{wait_time}"
@@ -57,6 +66,7 @@ def title spreadsheet_key
       next
     end
   end
+  fail "max number of retries for rate limit exceeded"
 end
 
 def store_user_profile
@@ -93,19 +103,11 @@ def people_worksheet_range
 end
 
 def worksheet(spreadsheet_key=SPREADSHEET_KEY, range, value_render_option: nil)
-  (0..5).each do |n|
-    begin
-      return google_sheets.get_spreadsheet_values(spreadsheet_key, range, value_render_option: value_render_option).values
-    rescue => error
-      puts "worksheet rate limit exceeded"
-      puts error.inspect
-      wait_time = (2 ** n)
-      puts "wait time: #{wait_time}"
-      sleep(wait_time)
-      next
-    end
+  exponential_backoff do
+    google_sheets.get_spreadsheet_values(
+      spreadsheet_key, range, value_render_option: value_render_option
+    ).values
   end
-  fail "max number of retries for rate limit exceeded"
 end
 
 
