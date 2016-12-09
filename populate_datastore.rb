@@ -108,5 +108,5 @@ flush_datastore
 DATASTORE.pipelined do
   store_user_profile
   store_transactions
-  store_individual_balances_and_creditors
+  # store_individual_balances_and_creditors
 end
