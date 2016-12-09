@@ -45,7 +45,9 @@ def store_individual_balances_and_creditors
 end
 
 def title spreadsheet_key
-  sheet = google_sheets.get_spreadsheet(spreadsheet_key).properties.title
+    sheet = google_sheets.get_spreadsheet(spreadsheet_key).properties.title
+  rescue => error
+    puts error.inspect
 end
 
 def store_user_profile
