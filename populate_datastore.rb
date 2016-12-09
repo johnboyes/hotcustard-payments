@@ -27,7 +27,6 @@ def balances
   Hash.new({}).tap do |balances|
     spreadsheet_keys.each do |key|
       people = worksheet(key, "PeopleWithCosts")[0]
-      sleep 1
       amounts = worksheet(key, "IndividualAmounts")[0]
       title = title(key)
       people.each_with_index do |person, index|
@@ -94,6 +93,7 @@ end
 def google_sheets
   Google::Apis::SheetsV4::SheetsService.new.tap do |service|
     service.authorization = decoded_google_authorization_from_env
+    quota_user = "hot_custard_payments_user"
   end
 end
 
@@ -108,5 +108,5 @@ flush_datastore
 DATASTORE.pipelined do
   store_user_profile
   store_transactions
-  # store_individual_balances_and_creditors
+  store_individual_balances_and_creditors
 end
