@@ -49,8 +49,11 @@ def title spreadsheet_key
     begin
       sheet = google_sheets.get_spreadsheet(spreadsheet_key).properties.title
     rescue => error
+      puts "title rate limit exceeded"
       puts error.inspect
-      sleep(2 ** n)
+      wait_time = (2 ** n)
+      puts "wait time: #{wait_time}"
+      sleep(wait_time)
       next
     end
   end
@@ -94,11 +97,15 @@ def worksheet(spreadsheet_key=SPREADSHEET_KEY, range, value_render_option: nil)
     begin
       return google_sheets.get_spreadsheet_values(spreadsheet_key, range, value_render_option: value_render_option).values
     rescue => error
+      puts "worksheet rate limit exceeded"
       puts error.inspect
-      sleep(2 ** n)
+      wait_time = (2 ** n)
+      puts "wait time: #{wait_time}"
+      sleep(wait_time)
       next
     end
   end
+  fail "max number of retries for rate limit exceeded"
 end
 
 
