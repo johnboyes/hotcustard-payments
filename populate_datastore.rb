@@ -27,6 +27,7 @@ def balances
   Hash.new({}).tap do |balances|
     spreadsheet_keys.each do |key|
       people = worksheet(key, "PeopleWithCosts")[0]
+      sleep 1
       amounts = worksheet(key, "IndividualAmounts")[0]
       title = title(key)
       people.each_with_index do |person, index|
