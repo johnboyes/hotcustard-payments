@@ -83,7 +83,7 @@ end
 
 def worksheet(spreadsheet_key=SPREADSHEET_KEY, range, value_render_option: nil)
     google_sheets.get_spreadsheet_values(spreadsheet_key, range, value_render_option: value_render_option).values
-  rescue Error error
+  rescue => error
     puts error.inspect
 end
 
