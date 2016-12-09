@@ -47,12 +47,31 @@ def store_individual_balances_and_creditors
   end
 end
 
-def title(spreadsheet_key)
-  google_sheets.get_spreadsheet(spreadsheet_key).properties.title
+def spreadsheet(spreadsheet_key)
+  exponential_backoff do
+    google_sheets.get_spreadsheet(spreadsheet_key)
+  end
 end
 
-def facebook_people(people)
-  people.select { |person| person['Facebook name'].present? }
+def title(spreadsheet_key)
+  spreadsheet(spreadsheet_key).properties.title
+end
+
+def exponential_wait_time(n)
+  2**n.tap { |wait_time| puts "wait time: #{wait_time}s" }
+end
+
+def exponential_backoff
+  (0..5).each do |n|
+    begin
+      return yield
+    rescue => error
+      puts error.inspect
+      sleep(wait_time(n))
+      next
+    end
+  end
+  raise 'max number of retries for rate limit exceeded'
 end
 
 def people_worksheet
@@ -63,6 +82,10 @@ def store_facebook_people(people)
   facebook_people(people).each do |person|
     DATASTORE.set "facebook_name:#{person['Facebook name']}", person['Name']
   end
+end
+
+def facebook_people(people)
+  people.select { |person| person['Facebook name'].present? }
 end
 
 def store_parameterized_people(people)
@@ -103,9 +126,11 @@ def people_worksheet_range
 end
 
 def worksheet(range, spreadsheet_key = SPREADSHEET_KEY, value_render_option: nil)
-  google_sheets.get_spreadsheet_values(
-    spreadsheet_key, range, value_render_option: value_render_option
-  ).values
+  exponential_backoff do
+    google_sheets.get_spreadsheet_values(
+      spreadsheet_key, range, value_render_option: value_render_option
+    ).values
+  end
 end
 
 def flush_datastore
