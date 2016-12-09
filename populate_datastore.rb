@@ -45,9 +45,15 @@ def store_individual_balances_and_creditors
 end
 
 def title spreadsheet_key
-    sheet = google_sheets.get_spreadsheet(spreadsheet_key).properties.title
-  rescue => error
-    puts error.inspect
+  (0..5).each do |n|
+    begin
+      sheet = google_sheets.get_spreadsheet(spreadsheet_key).properties.title
+    rescue => error
+      puts error.inspect
+      sleep(2 ** n)
+      next
+    end
+  end
 end
 
 def store_user_profile
@@ -84,9 +90,15 @@ def people_worksheet_range
 end
 
 def worksheet(spreadsheet_key=SPREADSHEET_KEY, range, value_render_option: nil)
-    google_sheets.get_spreadsheet_values(spreadsheet_key, range, value_render_option: value_render_option).values
-  rescue => error
-    puts error.inspect
+  (0..5).each do |n|
+    begin
+      return google_sheets.get_spreadsheet_values(spreadsheet_key, range, value_render_option: value_render_option).values
+    rescue => error
+      puts error.inspect
+      sleep(2 ** n)
+      next
+    end
+  end
 end
 
 
