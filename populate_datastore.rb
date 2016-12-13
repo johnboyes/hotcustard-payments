@@ -6,7 +6,7 @@ require 'dotenv'
 require 'active_support/core_ext/string/inflections'
 require 'base64'
 Dotenv.load
-# Dotenv.load "prod.env"
+# Dotenv.load 'prod.env'
 require_relative 'google_sheet'
 require_relative 'hot_custard_payments'
 require_relative 'hcmoney'
