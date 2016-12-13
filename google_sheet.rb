@@ -18,13 +18,17 @@ class GoogleSheet
       end
     end
 
+    def exponential_wait_time(n)
+      2**n.tap { |wait_time| puts "wait time: #{wait_time}s" }
+    end
+
     def exponential_backoff
       (0..5).each do |n|
         begin
           return yield
         rescue => error
           puts error.inspect
-          sleep(wait_time(n))
+          sleep(exponential_wait_time(n))
           next
         end
       end
