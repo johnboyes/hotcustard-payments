@@ -28,12 +28,22 @@ class HotCustardApp < Sinatra::Base
   end
 
   def individual_balances_for(username)
-    balances = JSON.parse(user_datastore["balance:#{username}"]).select do |_key, value|
+    datastore_balances = user_datastore["balance:#{username}"]
+    return {'Total' => '£0.00'} unless datastore_balances
+    balances = JSON.parse(datastore_balances).select do |_key, value|
       HCMoney.new(value).worth_showing?
     end
-    balances['Total'] = balances.values.map { |amount| HCMoney.new(amount) }.inject(:+)
-    balances['Total'] = '£0.00' unless balances['Total']
+    balances['Total'] = total(balances)
     balances
+  end
+
+  def total_for(username)
+    individual_balances_for(username)['Total']
+  end
+
+  def total(balances)
+    total = balances.values.map { |amount| HCMoney.new(amount) }.inject(:+)
+    total ? total : '£0.00'
   end
 
   def individual_transactions_for(username)
@@ -54,6 +64,10 @@ class HotCustardApp < Sinatra::Base
 
   def australia_payers
     user_datastore.smembers 'australia_payers'
+  end
+
+  def debtors
+    people.map { |person| [person, total_for(person)] }.to_h.sort_by { |person, total| HCMoney.new(total) }
   end
 
   def all_balances
@@ -110,6 +124,11 @@ class HotCustardApp < Sinatra::Base
     @balance = individual_balances_for @person
     @people = people
     erb :payments
+  end
+
+  get '/debtors', role: :financial_admin do
+    @debtors = debtors
+    erb :debtors
   end
 
   post '/payments/person' do
