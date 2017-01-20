@@ -20,7 +20,7 @@ class HCMoney
   end
 
   def self.zero
-    self.new(0)
+    new(0)
   end
 
   attr_reader :money

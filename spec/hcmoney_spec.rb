@@ -110,7 +110,7 @@ describe HCMoney, '#in_credit?' do
 end
 
 describe HCMoney, '#zero' do
-  it "is is zero" do
+  it 'is is zero' do
     expect(HCMoney.zero.to_s).to eq HCMoney.new(0).to_s
   end
 end
