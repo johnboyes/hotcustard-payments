@@ -62,8 +62,8 @@ class HotCustardApp < Sinatra::Base
   end
 
   def debtors
-    people.map { |person| [person, total_for(person)] }.to_h.sort_by do |_person, total|
-      HCMoney.new(total)
+    people.map { |person| {name: person, total: total_for(person)} }.sort_by do |debtor|
+      HCMoney.new(debtor[:total])
     end
   end
 
