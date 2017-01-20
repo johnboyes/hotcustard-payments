@@ -62,12 +62,12 @@
   <thead>
     <tr>
     	<th>Total</th>
-    	<th class="amount" id="total-balance"><%= @balance["Total"] %></th>
+    	<th class="amount" id="total-balance"><%= total(@balance) %></th>
     </tr>
     <% if might_pay_in_aus? @person %>
      <tr>
        <th>Total in Aus $</th>
-         <th class="amount" id="total-balance-australian-dollars"><%= to_australian_dollars(@balance["Total"]) %></th>
+         <th class="amount" id="total-balance-australian-dollars"><%= to_australian_dollars(total(@balance)) %></th>
      </tr>
     <% end %>
   </thead>
