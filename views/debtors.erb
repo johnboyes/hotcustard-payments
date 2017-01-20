@@ -36,7 +36,7 @@
       <% @debtors.each do |debtor_total_pair| %>
         <tr>
           <td><%= debtor_total_pair[0] %></td>
-          <td><%= debtor_total_pair[1] %></td>
+          <td class="amount"><%= debtor_total_pair[1] %></td>
         </tr>
       <% end %>
     </tbody>
