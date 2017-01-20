@@ -38,8 +38,7 @@ class HotCustardApp < Sinatra::Base
   end
 
   def total(balances)
-    total = balances.values.map { |amount| HCMoney.new(amount) }.inject(:+)
-    total ? total : '£0.00'
+    balances.values.map { |amount| HCMoney.new(amount) }.inject(:+) || HCMoney.zero
   end
 
   def individual_transactions_for(username)

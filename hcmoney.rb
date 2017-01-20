@@ -19,6 +19,10 @@ class HCMoney
     end
   end
 
+  def self.zero
+    self.new(0)
+  end
+
   attr_reader :money
 
   def initialize(monetary_string, currency = 'GBP')
