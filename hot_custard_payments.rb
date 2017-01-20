@@ -118,17 +118,17 @@ class HotCustardApp < Sinatra::Base
     erb :creditors
   end
 
+  get '/payments/debtors', role: :financial_admin do
+    @debtors = debtors
+    erb :debtors
+  end
+
   get '/payments/:name', role: :financial_admin do
     @person = user_datastore["parameterized_name:#{params['name']}"]
     @transactions = individual_transactions_for @person
     @balance = individual_balances_for @person
     @people = people
     erb :payments
-  end
-
-  get '/debtors', role: :financial_admin do
-    @debtors = debtors
-    erb :debtors
   end
 
   post '/payments/person' do
