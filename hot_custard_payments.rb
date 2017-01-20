@@ -29,7 +29,7 @@ class HotCustardApp < Sinatra::Base
 
   def individual_balances_for(username)
     datastore_balances = user_datastore["balance:#{username}"]
-    return {'Total' => '£0.00'} unless datastore_balances
+    return Hash.new unless datastore_balances
     JSON.parse(datastore_balances).select { |_key, value| HCMoney.new(value).worth_showing? }
   end
 
