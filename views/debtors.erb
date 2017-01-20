@@ -33,10 +33,10 @@
       </tr>
     </thead>
     <tbody>
-      <% @debtors.each do |debtor_total_pair| %>
+      <% @debtors.each do |debtor| %>
         <tr>
-          <td><%= debtor_total_pair[0] %></td>
-          <td class="amount"><%= debtor_total_pair[1] %></td>
+          <td><%= debtor[:name] %></td>
+          <td class="amount"><%= debtor[:total] %></td>
         </tr>
       <% end %>
     </tbody>

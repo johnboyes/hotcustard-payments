@@ -179,7 +179,7 @@ feature 'Full journey tests' do
     click_on 'Debtors'
     expect(page.current_path).to eq '/payments/debtors'
     expect(page.status_code).to be 200
-    expect(page).to have_content "Hot Custard Current Debtors"
+    expect(page).to have_content 'Hot Custard Current Debtors'
     expect_all_amounts_to_be_monetary
   end
 
