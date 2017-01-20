@@ -173,6 +173,24 @@ feature 'Full journey tests' do
     expect(page.status_code).to be 403
   end
 
+  scenario 'financial admins can see a list of debtors' do
+    login FINANCIAL_ADMIN_FACEBOOK_NAME
+    visit '/'
+    click_on 'Debtors'
+    expect(page.current_path).to eq '/payments/debtors'
+    expect(page.status_code).to be 200
+    expect(page).to have_content "Hot Custard Current Debtors"
+    expect_all_amounts_to_be_monetary
+  end
+
+  scenario 'regular users cannot see a list of debtors' do
+    login REGULAR_USER_FACEBOOK_NAME
+    visit '/'
+    expect(page).not_to have_content 'Debtors'
+    visit '/payments/debtors'
+    expect(page.status_code).to be 403
+  end
+
   def expect_uk_bank_details
     [
       'UK HC bank details',

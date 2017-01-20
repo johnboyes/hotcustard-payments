@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Hot Custard Current Debtors</title>
+<meta charset="UTF-8">
+<style>
+  table {
+    border: 1px solid black;
+    border-collapse: collapse;
+    margin: 50px;
+  }
+  th,td {
+    white-space: nowrap;
+    vertical-align: top;
+    border-top: 1px solid black;
+    padding: 10px;
+  }
+  td.multiple-items {
+  	border: none;
+  	padding-top: 5px;
+  	padding-bottom: 5px;
+  }
+</style>
+</head>
+<body>
+  <h1>Hot Custard Current Debtors</h1>
+  <table>
+    <caption>HC debtors</caption>
+    <thead>
+      <tr>
+        <th>Debtor</th>
+        <th>Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @debtors.each do |debtor_total_pair| %>
+        <tr>
+          <td><%= debtor_total_pair[0] %></td>
+          <td class="amount"><%= debtor_total_pair[1] %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</body>
+</html>
