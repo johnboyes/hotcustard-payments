@@ -10,6 +10,7 @@ require 'active_support/core_ext/string/inflections'
 require_relative 'sinatra/hcmoney_helper'
 require_relative 'hcmoney'
 
+# rubocop:disable Metrics/ClassLength
 # Sinatra application class
 class HotCustardApp < Sinatra::Base
   # so we can see stdout when starting with foreman, see
@@ -23,7 +24,7 @@ class HotCustardApp < Sinatra::Base
   set(:role) { |role| condition { halt 403 if (role == :financial_admin) && !financial_admin? } }
 
   before do
-    pass if request.path_info =~ %r{^\/auth\/}
+    pass if request.path_info.match? %r{^\/auth\/}
     redirect to('/auth/facebook') unless current_user
   end
 
@@ -62,7 +63,7 @@ class HotCustardApp < Sinatra::Base
   end
 
   def debtors
-    people.map { |person| {name: person, total: total_for(person)} }.sort_by do |debtor|
+    people.map { |person| { name: person, total: total_for(person) } }.sort_by do |debtor|
       HCMoney.new(debtor[:total])
     end
   end
@@ -150,3 +151,4 @@ class HotCustardApp < Sinatra::Base
     'Authentication failure'
   end
 end
+# rubocop:enable Metrics/ClassLength

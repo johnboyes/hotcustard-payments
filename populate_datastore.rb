@@ -70,7 +70,7 @@ def store_parameterized_people(people)
 end
 
 def store_user_profiles(people)
-  DATASTORE.set 'people', people.map { |person| person['Name'] }
+  DATASTORE.set('people', people.map { |person| person['Name'] })
   store_parameterized_people people
   store_facebook_people people
   DATASTORE.sadd 'financial_admins', financial_admins(people)
