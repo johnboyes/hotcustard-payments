@@ -20,4 +20,6 @@ group :test do
   gem 'capybara'
   gem 'dotenv'
   gem 'rspec'
+  # For CircleCI test reports
+  gem 'rspec_junit_formatter'
 end
