@@ -22,18 +22,18 @@ class GoogleSheet
       2**n.tap { |wait_time| puts "wait time: #{wait_time}s" }
     end
 
+    # rubocop:disable Style/RescueStandardError
     def exponential_backoff
       (0..5).each do |n|
-        begin
-          return yield
-        rescue => error
-          puts error.inspect
-          sleep(exponential_wait_time(n))
-          next
-        end
+        return yield
+      rescue => error
+        puts error.inspect
+        sleep(exponential_wait_time(n))
+        next
       end
       raise 'max number of retries for rate limit exceeded'
     end
+    # rubocop:enable Style/RescueStandardError
 
     def google_sheets
       Google::Apis::SheetsV4::SheetsService.new.tap do |service|
