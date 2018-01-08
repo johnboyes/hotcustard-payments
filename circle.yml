@@ -9,4 +9,4 @@ machine:
 test:
   override:
     - bundle exec ruby populate_datastore.rb
-    - bundle exec rspec
+    - bundle exec rspec --format progress --format RspecJunitFormatter -o $CIRCLE_TEST_REPORTS/rspec.xml
