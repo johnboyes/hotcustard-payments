@@ -15,7 +15,7 @@ class HCMoney
 
   MoneyOXR::RatesStore.new(
     app_id: ENV['OPEN_EXCHANGE_RATES_APP_ID'],
-    cache_path: 'tmp/oxr.json',
+    cache_path: '/tmp/oxr.json',
     max_age: 86_400
   ).load
 
