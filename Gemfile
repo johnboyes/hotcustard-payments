@@ -3,11 +3,11 @@ ruby '2.5.0'
 
 gem 'activesupport'
 gem 'google-api-client'
-gem 'google_currency'
 gem 'hiredis'
 gem 'koala', '~> 2.0'
 gem 'monetize'
 gem 'money'
+gem 'money-oxr'
 gem 'omniauth-facebook'
 gem 'puma'
 # An error occurs when using Redis version 4 - not sure why, so staying with 3 for now at least
