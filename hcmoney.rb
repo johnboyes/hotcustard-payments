@@ -9,7 +9,7 @@ I18n.enforce_available_locales = false
 class HCMoney
   Money.default_bank = MoneyOXR::Bank.new(
     app_id: ENV['OPEN_EXCHANGE_RATES_APP_ID'],
-    cache_path: 'tmp/oxr.json',
+    cache_path: '/tmp/oxr.json',
     max_age: 86_400
   )
 
