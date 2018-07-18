@@ -1,14 +1,23 @@
 require 'monetize'
 require 'money'
-require 'money/bank/google_currency'
+require 'money_oxr/bank'
 
 # see https://github.com/RubyMoney/money/issues/593
 I18n.enforce_available_locales = false
 
 # Hot Custard tailored implementation of money
 class HCMoney
-  Money::Bank::GoogleCurrency.ttl_in_seconds = 3
-  Money.default_bank = Money::Bank::GoogleCurrency.new
+  Money.default_bank = MoneyOXR::Bank.new(
+    app_id: ENV['OPEN_EXCHANGE_RATES_APP_ID'],
+    cache_path: '/tmp/oxr.json',
+    max_age: 86_400
+  )
+
+  MoneyOXR::RatesStore.new(
+    app_id: ENV['OPEN_EXCHANGE_RATES_APP_ID'],
+    cache_path: '/tmp/oxr.json',
+    max_age: 86_400
+  ).load
 
   def self.amount_that_can_be_credited(creditor_balance:, hot_custard_balance:)
     return [hot_custard_balance, -creditor_balance].max if hot_custard_balance.negative?
