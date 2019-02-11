@@ -12,6 +12,24 @@ class GoogleSheet
       hash_array ? to_hash_array(worksheet) : worksheet
     end
 
+    def range(spreadsheet_key, range, value_render_option: nil)
+      Hash.new({}).tap do |the_range|
+        worksheet = exponential_backoff do
+          google_sheets.get_spreadsheet_values(spreadsheet_key, range)
+        end
+        the_range[:values] = worksheet.values
+        the_range[:boundaries] = boundaries(worksheet.range)
+      end
+    end
+
+    private def boundaries(a1notation_range)
+      Hash.new({}).tap do |the_boundaries|
+        a1_notation = a1notation_range.split('!').last.split(':')
+        the_boundaries[:start_column], the_boundaries[:start_row] = a1_notation.first.scan(/\D+|\d+/)
+        the_boundaries[:end_column], the_boundaries[:end_row] = a1_notation.last.split(':').last.scan(/\D+|\d+/)
+      end
+    end
+
     def spreadsheet(spreadsheet_key)
       exponential_backoff do
         google_sheets.get_spreadsheet(spreadsheet_key)
