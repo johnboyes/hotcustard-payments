@@ -3,13 +3,29 @@ class GoogleSheet
   GOOGLE_APPLICATION_CREDENTIALS = Base64.decode64(ENV['ENCODED_GOOGLE_APPLICATION_CREDENTIALS'])
 
   class << self
-    def worksheet(spreadsheet_key, range, value_render_option: nil, hash_array: false)
+    def worksheet(spreadsheet_key, range, hash_array: false)
       worksheet = exponential_backoff do
-        google_sheets.get_spreadsheet_values(
-          spreadsheet_key, range, value_render_option: value_render_option
-        ).values
+        google_sheets.get_spreadsheet_values(spreadsheet_key, range).values
       end
       hash_array ? to_hash_array(worksheet) : worksheet
+    end
+
+    def range(spreadsheet_key, range)
+      Hash.new({}).tap do |the_range|
+        worksheet = exponential_backoff do
+          google_sheets.get_spreadsheet_values(spreadsheet_key, range)
+        end
+        the_range[:values] = worksheet.values
+        the_range[:boundaries] = boundaries(worksheet.range)
+      end
+    end
+
+    private def boundaries(a1notation_range)
+      Hash.new({}).tap do |the_boundaries|
+        a1_notation = a1notation_range.split('!').last.split(':')
+        the_boundaries[:start_column], the_boundaries[:start_row] = a1_notation.first.scan(/\D+|\d+/)
+        the_boundaries[:end_column], the_boundaries[:end_row] = a1_notation.last.split(':').last.scan(/\D+|\d+/)
+      end
     end
 
     def spreadsheet(spreadsheet_key)
