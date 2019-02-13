@@ -3,16 +3,14 @@ class GoogleSheet
   GOOGLE_APPLICATION_CREDENTIALS = Base64.decode64(ENV['ENCODED_GOOGLE_APPLICATION_CREDENTIALS'])
 
   class << self
-    def worksheet(spreadsheet_key, range, value_render_option: nil, hash_array: false)
+    def worksheet(spreadsheet_key, range, hash_array: false)
       worksheet = exponential_backoff do
-        google_sheets.get_spreadsheet_values(
-          spreadsheet_key, range, value_render_option: value_render_option
-        ).values
+        google_sheets.get_spreadsheet_values(spreadsheet_key, range).values
       end
       hash_array ? to_hash_array(worksheet) : worksheet
     end
 
-    def range(spreadsheet_key, range, value_render_option: nil)
+    def range(spreadsheet_key, range)
       Hash.new({}).tap do |the_range|
         worksheet = exponential_backoff do
           google_sheets.get_spreadsheet_values(spreadsheet_key, range)
