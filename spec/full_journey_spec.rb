@@ -191,6 +191,11 @@ feature 'Full journey tests' do
     expect(page.status_code).to be 403
   end
 
+  scenario 'privacy policy' do
+    visit '/privacy'
+    expect(page).to have_content 'Privacy Policy'
+  end
+
   def expect_uk_bank_details
     [
       'UK HC bank details',
