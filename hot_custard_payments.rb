@@ -24,7 +24,7 @@ class HotCustardApp < Sinatra::Base
   set(:role) { |role| condition { halt 403 if (role == :financial_admin) && !financial_admin? } }
 
   before do
-    pass if request.path_info.match? %r{^\/auth\/}
+    pass if request.path_info.match? %r{^\/auth\/|^\/privacy$}
     redirect to('/auth/facebook') unless current_user
   end
 
@@ -149,6 +149,10 @@ class HotCustardApp < Sinatra::Base
 
   get '/auth/failure' do
     'Authentication failure'
+  end
+
+  get '/privacy' do
+    send_file File.join(settings.public_folder, 'privacy.html')
   end
 end
 # rubocop:enable Metrics/ClassLength
