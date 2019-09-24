@@ -135,8 +135,8 @@ class HotCustardApp < Sinatra::Base
 
   get '/auth/unassociated' do
     status 403
-    "Sorry, we haven't activated this feature for you yet. If you are a Hot Custard member "\
-    "then we'll activate it as soon as we can for you :-)"
+    'If you are not a Hot Custard member then you are not authorised to view this application.'\
+    'If you are a Hot Custard member then we will activate your access as soon as we can :-)'
   end
 
   get '/auth/:provider/callback' do

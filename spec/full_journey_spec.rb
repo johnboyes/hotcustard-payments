@@ -238,9 +238,11 @@ feature 'Full journey tests' do
 
   def expect_unactivated_page_content
     expect(page.status_code).to be 403
-    expect(page).to have_content "Sorry, we haven't activated this feature for you yet."
     expect(page).to have_content(
-      "If you are a Hot Custard member then we'll activate it as soon as we can for you :-)"
+      'If you are not a Hot Custard member then you are not authorised to view this application.'
+    )
+    expect(page).to have_content(
+      'If you are a Hot Custard member then we will activate your access as soon as we can :-)'
     )
   end
 
