@@ -154,5 +154,9 @@ class HotCustardApp < Sinatra::Base
   get '/privacy' do
     send_file File.join(settings.public_folder, 'privacy.html')
   end
+
+  get '/' do
+    redirect to('/payments')
+  end
 end
 # rubocop:enable Metrics/ClassLength
