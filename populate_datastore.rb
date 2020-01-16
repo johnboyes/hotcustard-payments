@@ -2,11 +2,13 @@ require 'redis'
 require 'googleauth'
 require 'google/apis/sheets_v4'
 require 'json'
-require 'dotenv'
+require 'dotenv' :groups => [:development, :test]
 require 'active_support/core_ext/string/inflections'
 require 'base64'
-Dotenv.load
-# Dotenv.load 'prod.env'
+if defined? Dotenv
+  Dotenv.load
+  # Dotenv.load 'prod.env'
+end
 require_relative 'google_sheet'
 require_relative 'hot_custard_payments'
 require_relative 'hcmoney'
