@@ -2,6 +2,7 @@ ARG VARIANT=2
 FROM mcr.microsoft.com/vscode/devcontainers/ruby:${VARIANT}
 
 # Install Sinatra
+# hadolint ignore=DL3028
 RUN gem install sinatra sinatra-reloader thin data_mapper dm-sqlite-adapter 
 
 # Install a version of Node.js using nvm for dynamic front end content
