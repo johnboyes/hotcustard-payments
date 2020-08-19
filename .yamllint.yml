@@ -6,3 +6,9 @@ rules:
   line-length:
     max: 120
     level: warning
+    ignore: |
+      /.circleci/config.yml
+
+  indentation:
+    ignore: |
+      /.circleci/config.yml

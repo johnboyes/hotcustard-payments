@@ -1,3 +1,4 @@
+---
 version: 2.1
 executors:
   circleci-ruby-executor:
@@ -31,7 +32,7 @@ jobs:
 
     - restore_cache:
         keys:
-        # when lock file changes, use increasingly general patterns to restore cache
+          # when lock file changes, use increasingly general patterns to restore cache
           - v2.5.3-gem-cache-{{ arch }}-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
           - v2.5.3-gem-cache-{{ arch }}-{{ .Branch }}-
           - v2.5.3-gem-cache-{{ arch }}-
