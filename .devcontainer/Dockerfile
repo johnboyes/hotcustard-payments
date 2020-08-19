@@ -8,6 +8,9 @@ RUN gem install sinatra sinatra-reloader thin data_mapper dm-sqlite-adapter
 ARG NODE_VERSION="lts/*"
 RUN su vscode -c "source /usr/local/share/nvm/nvm.sh && nvm install ${NODE_VERSION} 2>&1"
 
+# Make sure gpg is available to git, for signing commits
+RUN git config --global gpg.program "$(which gpg)"
+
 # [Optional] Uncomment this section to install additional OS packages.
 # RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 #     && apt-get -y install --no-install-recommends <your-package-list-here>
