@@ -14,9 +14,13 @@ RUN git config --global gpg.program "$(which gpg)" && \
     # Set Visual Studio Code as the git editor
     git config --global core.editor "code --wait"
 
-# [Optional] Uncomment this section to install additional OS packages.
-# RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-#     && apt-get -y install --no-install-recommends <your-package-list-here>
+# Install additional OS packages.
+RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
+    && apt-get -y install --no-install-recommends redis-server=5:5.0.3-4+deb10u2 \
+# Clean up
+    && apt-get autoremove -y \
+    && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install additional gems.
 RUN gem install rubocop -v "=0.89.1"
