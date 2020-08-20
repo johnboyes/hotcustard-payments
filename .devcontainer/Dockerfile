@@ -25,5 +25,11 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 # Install additional gems.
 RUN gem install rubocop -v "=0.89.1"
 
+
+# (See https://github.com/hadolint/hadolint/wiki/DL4006 for more info on the pipefail setting)
+SHELL ["/bin/bash", "-o", "pipefail", "-c"] 
+# Install heroku (https://devcenter.heroku.com/articles/heroku-cli#standalone-installation)
+RUN curl https://cli-assets.heroku.com/install.sh | sh
+
 # [Optional] Uncomment this line to install global node packages.
 # RUN su vscode -c "source /usr/local/share/nvm/nvm.sh && npm install -g <your-package-here>" 2>&1

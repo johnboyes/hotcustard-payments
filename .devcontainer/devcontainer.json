@@ -26,7 +26,7 @@
 	// "forwardPorts": [4567],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "bundle install && redis-server",
+	"postCreateCommand": "heroku --version && bundle install && redis-server",
 
 	// Uncomment to connect as a non-root user. See https://aka.ms/vscode-remote/containers/non-root.
 	// "remoteUser": "vscode"
