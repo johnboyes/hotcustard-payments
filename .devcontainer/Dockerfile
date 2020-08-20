@@ -1,10 +1,6 @@
 ARG VARIANT=2
 FROM mcr.microsoft.com/vscode/devcontainers/ruby:${VARIANT}
 
-# Install a version of Node.js using nvm for dynamic front end content
-ARG NODE_VERSION="lts/*"
-RUN su vscode -c "source /usr/local/share/nvm/nvm.sh && nvm install ${NODE_VERSION} 2>&1"
-
 #     Make sure gpg is available to git, for signing commits
 RUN git config --global gpg.program "$(which gpg)" && \
     # Set Visual Studio Code as the git editor
@@ -26,6 +22,3 @@ RUN gem install rubocop -v "=0.89.1"
 SHELL ["/bin/bash", "-o", "pipefail", "-c"] 
 # Install heroku (https://devcenter.heroku.com/articles/heroku-cli#standalone-installation)
 RUN curl https://cli-assets.heroku.com/install.sh | sh
-
-# [Optional] Uncomment this line to install global node packages.
-# RUN su vscode -c "source /usr/local/share/nvm/nvm.sh && npm install -g <your-package-here>" 2>&1
