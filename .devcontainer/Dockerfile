@@ -15,8 +15,7 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && rm -rf /var/lib/apt/lists/*
 
 # Install additional gems.
-RUN gem install rubocop -v "=0.89.1"
-
+RUN gem install rubocop:0.89.1 reek:6.0.1
 
 # (See https://github.com/hadolint/hadolint/wiki/DL4006 for more info on the pipefail setting)
 SHELL ["/bin/bash", "-o", "pipefail", "-c"] 
