@@ -23,7 +23,8 @@
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [4567],
+	// 5000 is the port that the web app runs on locally (it is the foreman default port)
+	"forwardPorts": [5000],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "heroku --version && bundle install && redis-server",
