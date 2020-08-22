@@ -24,7 +24,7 @@ class HotCustardApp < Sinatra::Base
   set(:role) { |role| condition { halt 403 if (role == :financial_admin) && !financial_admin? } }
 
   before do
-    pass if request.path_info.match? %r{^\/auth\/|^\/privacy$}
+    pass if request.path_info.match? %r{^/auth/|^/privacy$}
     redirect to('/auth/facebook') unless current_user
   end
 
@@ -93,7 +93,7 @@ class HotCustardApp < Sinatra::Base
 
   def balances_for(person)
     string_balances = JSON.parse user_datastore["balance:#{person}"]
-    string_balances.map { |item, amount| [item, HCMoney.new(amount)] }.to_h
+    string_balances.transform_values { |amount| HCMoney.new(amount) }
   end
 
   def credits_for(creditor)
