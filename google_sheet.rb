@@ -20,14 +20,6 @@ class GoogleSheet
       end
     end
 
-    private def boundaries(a1notation_range)
-      Hash.new({}).tap do |the_boundaries|
-        a1_notation = a1notation_range.split('!').last.split(':')
-        the_boundaries[:start_column], the_boundaries[:start_row] = a1_notation.first.scan(/\D+|\d+/)
-        the_boundaries[:end_column], the_boundaries[:end_row] = a1_notation.last.split(':').last.scan(/\D+|\d+/)
-      end
-    end
-
     def spreadsheet(spreadsheet_key)
       # We use a backoff here to avoid hitting the Google Sheets API rate limit per 100 seconds
       exponential_backoff do
@@ -75,6 +67,16 @@ class GoogleSheet
 
     def title(spreadsheet_key)
       spreadsheet(spreadsheet_key).properties.title
+    end
+
+    private
+
+    def boundaries(a1notation_range)
+      Hash.new({}).tap do |the_boundaries|
+        a1_notation = a1notation_range.split('!').last.split(':')
+        the_boundaries[:start_column], the_boundaries[:start_row] = a1_notation.first.scan(/\D+|\d+/)
+        the_boundaries[:end_column], the_boundaries[:end_row] = a1_notation.last.split(':').last.scan(/\D+|\d+/)
+      end
     end
   end
 end
