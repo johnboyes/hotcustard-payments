@@ -14,5 +14,5 @@ OmniAuth.config.on_failure = proc do |env|
   OmniAuth::FailureEndpoint.new(env).redirect_to_failure
 end
 
-require './hot_custard_payments.rb'
+require './hot_custard_payments'
 run HotCustardApp

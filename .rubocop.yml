@@ -1,13 +1,10 @@
 ---
-Layout/LineLength:
-  Max: 100
+
+AllCops:
+  NewCops: enable
+
 Style/FrozenStringLiteralComment:
   Enabled: false
-
-Style/FormatStringToken:
-  # Thefalse positives in the full journey spec should be fixed in a new version of RuboCop soon - see #
-  Exclude:
-    - spec/full_journey_spec.rb
 
 Metrics/BlockLength:
   Exclude:

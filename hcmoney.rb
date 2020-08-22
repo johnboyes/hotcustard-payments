@@ -22,6 +22,7 @@ class HCMoney
 
   def self.amount_that_can_be_credited(creditor_balance:, hot_custard_balance:)
     return [hot_custard_balance, -creditor_balance].max if hot_custard_balance.negative?
+
     case hot_custard_balance <=> creditor_balance
     when -1 then hot_custard_balance
     when 0 then hot_custard_balance
@@ -59,6 +60,7 @@ class HCMoney
 
   def worth_showing?
     return false if blank? @monetary_string
+
     (to_i >= 1) || (to_i <= -1)
   end
 
@@ -89,6 +91,7 @@ class HCMoney
 
   def <=>(other)
     return nil unless other.is_a?(HCMoney)
+
     @money <=> other.money
   end
 

@@ -12,7 +12,7 @@ SPREADSHEET_KEY = ENV['SPREADSHEET_KEY']
 DATASTORE = Redis.new(url: ENV['REDIS_URL'])
 
 def check_worksheets
-  spreadsheet_keys.reverse.take(20).each_with_index { |key, i| check_worksheet(key) }
+  spreadsheet_keys.reverse.take(20).each { |key| check_worksheet(key) }
 end
 
 def check_worksheet(spreadsheet_key)
@@ -20,6 +20,7 @@ def check_worksheet(spreadsheet_key)
   start_row = people_with_costs[:boundaries][:start_row]
   full_people_row = GoogleSheet.range(spreadsheet_key, "#{start_row}:#{start_row}")[:values].first
   raise invalid_spreadsheet_message(spreadsheet_key) unless full_people_row_valid? full_people_row
+
   puts "Successfully validated spreadsheet #{spreadsheet_key}"
 end
 
@@ -31,9 +32,11 @@ def full_people_row_valid?(full_people_row)
   sliced = full_people_row.slice_after('').to_a
   return false unless sliced.size == 5
   return false unless sliced[1..3].all? { |a| a == [''] }
+
   sliced[0].pop
   return false unless sliced[0] == sliced[4]
   return false unless sliced[0] == sliced[0].uniq
+
   true
 end
 

@@ -20,14 +20,6 @@ class GoogleSheet
       end
     end
 
-    private def boundaries(a1notation_range)
-      Hash.new({}).tap do |the_boundaries|
-        a1_notation = a1notation_range.split('!').last.split(':')
-        the_boundaries[:start_column], the_boundaries[:start_row] = a1_notation.first.scan(/\D+|\d+/)
-        the_boundaries[:end_column], the_boundaries[:end_row] = a1_notation.last.split(':').last.scan(/\D+|\d+/)
-      end
-    end
-
     def spreadsheet(spreadsheet_key)
       # We use a backoff here to avoid hitting the Google Sheets API rate limit per 100 seconds
       exponential_backoff do
@@ -35,16 +27,16 @@ class GoogleSheet
       end
     end
 
-    def exponential_wait_time(n)
-      2**n.tap { |wait_time| puts "wait time: #{wait_time}s" }
+    def exponential_wait_time(counter)
+      2**counter.tap { |wait_time| puts "wait time: #{wait_time}s" }
     end
 
     # rubocop:disable Style/RescueStandardError
     def exponential_backoff
       (0..10).each do |n|
         return yield
-      rescue => error
-        puts error.inspect
+      rescue => e
+        puts e.inspect
         sleep(exponential_wait_time(n))
         next
       end
@@ -75,6 +67,16 @@ class GoogleSheet
 
     def title(spreadsheet_key)
       spreadsheet(spreadsheet_key).properties.title
+    end
+
+    private
+
+    def boundaries(a1notation_range)
+      Hash.new({}).tap do |the_boundaries|
+        a1_notation = a1notation_range.split('!').last.split(':')
+        the_boundaries[:start_column], the_boundaries[:start_row] = a1_notation.first.scan(/\D+|\d+/)
+        the_boundaries[:end_column], the_boundaries[:end_row] = a1_notation.last.split(':').last.scan(/\D+|\d+/)
+      end
     end
   end
 end
