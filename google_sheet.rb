@@ -29,6 +29,7 @@ class GoogleSheet
     end
 
     def spreadsheet(spreadsheet_key)
+      # We use a backoff here to avoid hitting the Google Sheets API rate limit per 100 seconds
       exponential_backoff do
         google_sheets.get_spreadsheet(spreadsheet_key)
       end
@@ -40,7 +41,7 @@ class GoogleSheet
 
     # rubocop:disable Style/RescueStandardError
     def exponential_backoff
-      (0..5).each do |n|
+      (0..10).each do |n|
         return yield
       rescue => error
         puts error.inspect
