@@ -43,8 +43,8 @@ class GoogleSheet
     def exponential_backoff
       (0..10).each do |n|
         return yield
-      rescue => error
-        puts error.inspect
+      rescue => e
+        puts e.inspect
         sleep(exponential_wait_time(n))
         next
       end
