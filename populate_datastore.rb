@@ -12,7 +12,7 @@ SPREADSHEET_KEY = ENV['SPREADSHEET_KEY']
 DATASTORE = Redis.new(url: ENV['REDIS_URL'])
 
 def check_worksheets
-  spreadsheet_keys.reverse.take(20).each_with_index { |key, i| check_worksheet(key) }
+  spreadsheet_keys.reverse.take(20).each { |key| check_worksheet(key) }
 end
 
 def check_worksheet(spreadsheet_key)
