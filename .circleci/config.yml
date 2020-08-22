@@ -3,7 +3,7 @@ version: 2.1
 executors:
   circleci-ruby-executor:
     docker:
-      - image: circleci/ruby:2.5.8-stretch
+      - image: circleci/ruby:2.7.1-buster
       - image: circleci/redis:5.0.3-stretch
 jobs:
   build:
@@ -33,16 +33,16 @@ jobs:
     - restore_cache:
         keys:
           # when lock file changes, use increasingly general patterns to restore cache
-          - v2.5.3-gem-cache-{{ arch }}-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
-          - v2.5.3-gem-cache-{{ arch }}-{{ .Branch }}-
-          - v2.5.3-gem-cache-{{ arch }}-
+          - v2.7.1-gem-cache-{{ arch }}-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
+          - v2.7.1-gem-cache-{{ arch }}-{{ .Branch }}-
+          - v2.7.1-gem-cache-{{ arch }}-
 
     - run: bundle check || bundle install && bundle clean
 
     - save_cache:
         paths:
           - vendor/bundle
-        key: v2.5.3-gem-cache-{{ arch }}-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
+        key: v2.7.1-gem-cache-{{ arch }}-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
 
     - run:
         name: Populate datastore
