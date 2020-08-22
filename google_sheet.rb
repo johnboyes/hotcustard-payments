@@ -35,8 +35,8 @@ class GoogleSheet
       end
     end
 
-    def exponential_wait_time(n)
-      2**n.tap { |wait_time| puts "wait time: #{wait_time}s" }
+    def exponential_wait_time(counter)
+      2**counter.tap { |wait_time| puts "wait time: #{wait_time}s" }
     end
 
     # rubocop:disable Style/RescueStandardError
