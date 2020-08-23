@@ -26,4 +26,4 @@ RUN gem install rubocop:0.89.1 reek:6.0.1
 # (See https://github.com/hadolint/hadolint/wiki/DL4006 for more info on the pipefail setting)
 SHELL ["/bin/bash", "-o", "pipefail", "-c"] 
 # Install heroku (https://devcenter.heroku.com/articles/heroku-cli#standalone-installation)
-RUN curl https://cli-assets.heroku.com/install.sh | sh
+RUN wget -q https://cli-assets.heroku.com/install.sh | sh
