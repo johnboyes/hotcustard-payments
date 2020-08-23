@@ -1,0 +1,46 @@
+---
+# This compose file is taken from the example repo:
+# https://github.com/microsoft/vscode-dev-containers/tree/master/containers/python-3-postgres
+# (although our app uses neither Python or Postgres, the principle of an app linked to a service
+# is the same)
+# Also see https://code.visualstudio.com/docs/remote/create-dev-container#_using-docker-compose
+version: '3'
+
+services:
+    ruby:
+        # Uncomment the next line to use a non-root user for all processes.
+        # See https://aka.ms/vscode-remote/containers/non-root for details.
+        # user: vscode
+
+        build:
+            context: ..
+            dockerfile: .devcontainer/Dockerfile
+            args:
+                # Update 'VARIANT' to pick a Ruby version: 2, 2.7, 2.6, 2.5
+                VARIANT: 2.7
+
+        # Use "ports" to publish your app port locally. However, "forwardPorts" in devcontainer.json
+        # works better with framework defaults that only allow connections from localhost (e.g. Flask)
+        # ports:
+        #   - 5000:5000
+
+        volumes:
+            # Mounts the project folder to '/workspace'. The target path inside the container
+            # should match what your application expects. In this case, the compose file is
+            # in a sub-folder, so we will mount '..'. You would then reference this path as the
+            # 'workspaceFolder' in '.devcontainer/devcontainer.json' so VS Code starts here.
+            - ..:/workspace:cached
+
+        # Overrides default command so things don't shut down after the process ends.
+        command: sleep infinity
+
+        links:
+            - redis
+
+    redis:
+        image: redis
+        restart: unless-stopped
+
+      # Uncomment to allow access to Redis from external tools
+      # ports:
+      #     - 6379:6379

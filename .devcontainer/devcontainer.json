@@ -1,13 +1,10 @@
+// NOTE: Update the VARIANT arg in docker-compose.yml to pick a Ruby version: 2, 2.7, 2.6, 2.5
 {
-	"name": "Ruby & Sinatra",
-	"build": {
-		"dockerfile": "Dockerfile",
-		"args": { 
-			// Update 'VARIANT' to pick a Ruby version: 2, 2.7, 2.6, 2.5
-			"VARIANT": "2.7",
-			"NODE_VERSION": "lts/*"
-		}
-	},
+	"name": "Ruby",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "ruby",
+	"workspaceFolder": "/workspace",
+
 
 	// Set *default* container specific settings.json values on container create.
 	"settings": { 
@@ -31,12 +28,15 @@
 		"exiasr.hadolint"
 	],
 
+	// Uncomment the next line if you want to keep your containers running after VS Code shuts down.
+	// "shutdownAction": "none",
+
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// 5000 is the port that the web app runs on locally (it is the foreman default port)
 	"forwardPorts": [5000],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "heroku --version && bundle install && redis-server",
+	"postCreateCommand": "bundle install",
 
 	// Uncomment to connect as a non-root user. See https://aka.ms/vscode-remote/containers/non-root.
 	// "remoteUser": "vscode"

@@ -12,3 +12,5 @@ rules:
   indentation:
     ignore: |
       /.circleci/config.yml
+
+  comments-indentation: disable
