@@ -1,0 +1,21 @@
+---
+# Have turned off automatic rebases as it can lead to breaching the google sheets API
+# rate limit per 100 seconds
+# https://docs.github.com/en/github/administering-a-repository/configuration-options-for-dependency-updates#rebase-strategy
+
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    reviewers:
+      - "johnboyes"
+    rebase-strategy: "disabled"
+  - package-ecosystem: "bundler"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    reviewers:
+      - "johnboyes"
+    rebase-strategy: "disabled"
