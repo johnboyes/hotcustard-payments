@@ -51,3 +51,8 @@ development from within your browser) then all you need to do is [fork the proje
 ## Running the tests
 
 `bundle exec rspec`
+
+
+## Updating dependencies
+
+See the [DEPENDENCIES.md](.github/DEPENDENCIES.md)
