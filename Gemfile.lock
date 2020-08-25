@@ -156,7 +156,7 @@ DEPENDENCIES
   money-oxr
   omniauth-facebook
   puma
-  redis (>= 3.3.3, < 4.0.0)
+  redis (~> 3.3)
   rspec
   rspec_junit_formatter
   sinatra
