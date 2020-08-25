@@ -29,3 +29,7 @@ but that would be overkill for now.
 
 Eventually as Dependabot adds more features we may be able to remove this workaround.
 
+
+## Ubuntu version
+
+[Ubuntu releases annually in April](https://wiki.ubuntu.com/Releases).  In 2020 the GitHub Actions team [supported the new version by mid June](https://github.com/actions/virtual-environments/issues/228#issuecomment-644065532), so we have [an issue automatically created on for 15th July each year](https://github.com/johnboyes/hotcustard-payments/pull/114) to prompt us to update.
