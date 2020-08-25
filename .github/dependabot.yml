@@ -5,6 +5,7 @@
 
 version: 2
 updates:
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -12,10 +13,14 @@ updates:
     reviewers:
       - "johnboyes"
     rebase-strategy: "disabled"
+
   - package-ecosystem: "bundler"
     directory: "/"
     schedule:
       interval: "daily"
+    allow:
+      # Allow both direct and indirect dependency updates
+      - dependency-type: "all"
     reviewers:
       - "johnboyes"
     rebase-strategy: "disabled"
