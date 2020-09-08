@@ -91,7 +91,7 @@ GEM
       rack
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
-    redis (3.3.5)
+    redis (4.2.2)
     regexp_parser (1.7.1)
     representable (3.0.4)
       declarative (< 0.1.0)
@@ -154,7 +154,7 @@ DEPENDENCIES
   money-oxr
   omniauth-facebook
   puma
-  redis (~> 3.3)
+  redis (~> 4.2)
   rspec
   rspec_junit_formatter
   sinatra
