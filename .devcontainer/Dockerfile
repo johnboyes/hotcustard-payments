@@ -22,4 +22,4 @@ RUN mkdir -p /tmp/hadolint \
     && heroku --version
 
 # Install additional gems.
-RUN gem install rubocop:0.90.0 reek:6.0.1
+RUN gem install rubocop:0.91.0 reek:6.0.1
