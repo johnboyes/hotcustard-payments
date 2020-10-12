@@ -93,7 +93,7 @@ GEM
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
     redis (3.3.5)
-    regexp_parser (1.8.1)
+    regexp_parser (1.8.2)
     representable (3.0.4)
       declarative (< 0.1.0)
       declarative-option (< 0.2.0)
