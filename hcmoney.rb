@@ -24,8 +24,7 @@ class HCMoney
     return [hot_custard_balance, -creditor_balance].max if hot_custard_balance.negative?
 
     case hot_custard_balance <=> creditor_balance
-    when -1 then hot_custard_balance
-    when 0 then hot_custard_balance
+    when -1,0 then hot_custard_balance
     when 1 then creditor_balance
     end
   end
