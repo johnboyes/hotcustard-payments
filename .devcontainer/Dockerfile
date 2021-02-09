@@ -8,7 +8,7 @@ RUN git config --global gpg.program "$(which gpg)" && \
 
 
 # Install hadolint
-ARG HADOLINT_VERSION="v1.22.0"
+ARG HADOLINT_VERSION="v1.22.1"
 # (See https://github.com/hadolint/hadolint/wiki/DL4006 for more info on the pipefail setting) 
 # Install heroku (https://devcenter.heroku.com/articles/heroku-cli#standalone-installation)
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
