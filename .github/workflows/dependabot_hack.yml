@@ -14,5 +14,5 @@ jobs:
     steps:
       # update the versions in the devcontainer Dockerfile manually, too
       - uses: hadolint/hadolint@v1.22.1
-      - uses: rubocop-hq/rubocop@v1.9.1
+      - uses: rubocop-hq/rubocop@v1.10.0
       - uses: troessner/reek@reek:6.0.1
