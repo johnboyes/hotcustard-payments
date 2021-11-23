@@ -99,9 +99,9 @@ class HotCustardApp < Sinatra::Base
   def credits_for(creditor)
     creditor_balances =  balances_for(creditor).select { |_item, amount| amount.in_credit? }
     hot_custard_balances = balances_for('Hot Custard')
-    ary.to_h(creditor_balances.keys.map do |item|
+    (creditor_balances.keys.map do |item|
       [item, creditor_item_amounts(creditor_balances[item], (- hot_custard_balances[item]))]
-    end)
+    end).to_h
   end
 
   get '/payments' do
@@ -113,7 +113,7 @@ class HotCustardApp < Sinatra::Base
   end
 
   get '/payments/creditors', role: :financial_admin do
-    @creditors = ary.to_h(creditors.map { |creditor| [creditor, credits_for(creditor)] })
+    @creditors = (creditors.map { |creditor| [creditor, credits_for(creditor)] }).to_h
     erb :creditors
   end
 
