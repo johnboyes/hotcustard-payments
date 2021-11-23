@@ -99,9 +99,9 @@ class HotCustardApp < Sinatra::Base
   def credits_for(creditor)
     creditor_balances =  balances_for(creditor).select { |_item, amount| amount.in_credit? }
     hot_custard_balances = balances_for('Hot Custard')
-    Hash[creditor_balances.keys.map do |item|
+    ary.to_h(creditor_balances.keys.map do |item|
       [item, creditor_item_amounts(creditor_balances[item], (- hot_custard_balances[item]))]
-    end]
+    end)
   end
 
   get '/payments' do
@@ -113,7 +113,7 @@ class HotCustardApp < Sinatra::Base
   end
 
   get '/payments/creditors', role: :financial_admin do
-    @creditors = Hash[creditors.map { |creditor| [creditor, credits_for(creditor)] }]
+    @creditors = ary.to_h(creditors.map { |creditor| [creditor, credits_for(creditor)] })
     erb :creditors
   end
 
@@ -137,7 +137,7 @@ class HotCustardApp < Sinatra::Base
   get '/auth/unassociated' do
     status 403
     'If you are not a Hot Custard member then you are not authorised to view this application.'\
-    'If you are a Hot Custard member then we will activate your access as soon as we can :-)'
+      'If you are a Hot Custard member then we will activate your access as soon as we can :-)'
   end
 
   get '/auth/:provider/callback' do
