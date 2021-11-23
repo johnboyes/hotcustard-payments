@@ -155,15 +155,15 @@ feature 'Full journey tests' do
     expect(page.status_code).to be 403
   end
 
-  # scenario 'financial admins can see what anyone who is owed money can be paid back' do
-  #   login FINANCIAL_ADMIN_FACEBOOK_NAME
-  #   visit '/'
-  #   click_on 'Creditors'
-  #   expect(page.current_path).to eq '/payments/creditors'
-  #   expect(page.status_code).to be 200
-  #   expect(page).to have_content "HC money that can be paid to #{CREDITOR_NAME}"
-  #   expect_all_amounts_to_be_monetary
-  # end
+  scenario 'financial admins can see what anyone who is owed money can be paid back' do
+    login FINANCIAL_ADMIN_FACEBOOK_NAME
+    visit '/'
+    click_on 'Creditors'
+    expect(page.current_path).to eq '/payments/creditors'
+    expect(page.status_code).to be 200
+    expect(page).to have_content "HC money that can be paid to #{CREDITOR_NAME}"
+    expect_all_amounts_to_be_monetary
+  end
 
   scenario 'regular users cannot see what anyone who is owed money can be paid back' do
     login REGULAR_USER_FACEBOOK_NAME
