@@ -10,7 +10,7 @@ jobs:
 
   dependabot_hack:
     name: Ensure dependabot version checks
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       # update the versions in the devcontainer Dockerfile manually, too
       - uses: hadolint/hadolint@v1.22.1
